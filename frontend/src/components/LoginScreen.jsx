@@ -30,14 +30,15 @@ function LoginScreen() {
         // handle success
         // if success store email in the localstorage
         localStorage.setItem("email", decoded.email);
+        // Redirect to the homepage or any other page after successful login
+        navigate("/yourapps");
       })
       .catch((error) => {
         // handle error
         console.log(error);
       });
 
-    // Redirect to the homepage or any other page after successful login
-    navigate("/yourapps");
+    
   }
   return (
     <>
