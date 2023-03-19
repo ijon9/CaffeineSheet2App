@@ -9,6 +9,8 @@ function LoginScreen() {
   // credentialResponse
   function handleSuccess(response) {
     setIsLoggedIn(true);
+    console.log("logged in");
+    console.log(response);
     // Redirect to the homepage or any other page after successful login
     navigate("/yourapps");
   }
