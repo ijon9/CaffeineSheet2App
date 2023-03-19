@@ -4,6 +4,11 @@
 
 - clone the repo into a folder
 
+# Database
+
+- Currently setup database locally so need to download mongodb on local computer
+- https://www.mongodb.com/try/download/community
+
 # Frontend
 
 - cd into frontend folder
