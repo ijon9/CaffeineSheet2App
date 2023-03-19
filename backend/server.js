@@ -1,7 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/db");
 const Test = require("./models/testModel");
-const User = require("./models/userModel")
+const User = require("./models/userModel");
 
 // cores required for other domains to call our api urls
 const cors = require("cors");
@@ -21,11 +21,16 @@ app.use(express.json());
 app.get("/testPost", (req, res) => {
   res.send("working");
 });
+
 // call this function when doing a http post request to this url
 app.post("/testPost", async (req, res) => {
   const fake = new Test({ user: "john doe", age: 39 });
   await fake.save();
-  const user = new User({ name: req.body.name, email: req.body.email});
+  res.status(201).send({ message: "success" });
+});
+
+app.post("/addUser", async (req, res) => {
+  const user = new User({ name: req.body.name, email: req.body.email });
   await user.save();
   res.status(201).send({ message: "success" });
 });
