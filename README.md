@@ -13,5 +13,5 @@
 # Backend
 
 - cd into backend folder
-- run 'npm server' to start the server with nodemon
-- run 'npm start' to just start the server with node
+- run 'npm run server' to start the server with nodemon
+- run 'npm run start' to just start the server with node
