@@ -1,12 +1,13 @@
 import "./style/App.css";
-
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import LoginScreen from "./components/LoginScreen";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>SHEET2APP</p>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginScreen />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

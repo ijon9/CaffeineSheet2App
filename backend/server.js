@@ -1,4 +1,5 @@
 const express = require("express");
+// may need cors later. Have to see
 const cors = require("cors");
 const app = express();
 
