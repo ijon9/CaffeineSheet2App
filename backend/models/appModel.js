@@ -9,7 +9,9 @@ const appSchema = mongoose.Schema({
     creator: String,
     dataSources: [DataSource.schema],
     dViews: [DView.schema],
-    tViews: [TView.schema]
+    tViews: [TView.schema],
+    roleSheet: String,
+    published: Boolean
 });
 
 // export this model
