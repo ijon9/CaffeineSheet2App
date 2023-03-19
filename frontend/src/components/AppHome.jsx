@@ -1,27 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../style/AppHome.css";
 import axios from "axios";
 
 function AppHome(props) {
-  console.log(props.user);
-  // axios call to database and grab user
   // todo: show unique users
-  // axios
-  //   .get("http://localhost:4000/addUser", {
-  //     name: decoded.name,
-  //     email: decoded.email,
-  //   })
-  //   .then((response) => {
-  //     // handle success
-  //     console.log(response);
-  //   })
-  //   .catch((error) => {
-  //     // handle error
-  //     console.log(error);
-  //   });
-
+  const [email, setEmail] = useState(localStorage.getItem("email"));
   return (
     <div className="container">
+      <div>hello user {email}</div>
       <div>My Apps</div>
       <div>Table View</div>
     </div>

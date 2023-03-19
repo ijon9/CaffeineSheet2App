@@ -8,17 +8,17 @@ import axios from "axios";
 function LoginScreen() {
   // useState hook replaces local variables
   // set isLoggedIn as false
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   // when user sucessfully logs in with their google account
   function handleSuccess(response) {
-    setIsLoggedIn(true);
+    // setIsLoggedIn(true);
     // decode the credentials
     let decoded = jwt_decode(response.credential);
-    console.log(decoded.email);
-    console.log(decoded.family_name);
-    console.log(decoded);
+    // console.log(decoded.email);
+    // console.log(decoded.family_name);
+    // console.log(decoded);
     // Axios call to our backend
     // TODO: axio call to our database to store the user
     axios
@@ -28,8 +28,8 @@ function LoginScreen() {
       })
       .then((response) => {
         // handle success
-        console.log("success");
-        localStorage.setItem("myString", "Hello, world!");
+        // if success store email in the localstorage
+        localStorage.setItem("email", decoded.email);
       })
       .catch((error) => {
         // handle error
