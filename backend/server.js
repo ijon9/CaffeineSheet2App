@@ -30,9 +30,17 @@ app.post("/testPost", async (req, res) => {
 });
 
 app.post("/addUser", async (req, res) => {
-  const user = new User({ name: req.body.name, email: req.body.email });
-  await user.save();
-  res.status(201).send({ message: "success" });
+  // console.log(req.body);
+  const { name, email } = req.body;
+  const existingUser = await User.findOne({ email });
+  if (!existingUser) {
+    const user = new User({ name: name, email: email });
+    await user.save();
+    res.status(201).send({ message: "success" });
+  } else {
+    console.log("already in db");
+    res.status(201).send({ message: "already in db" });
+  }
 });
 //-----------------------------
 
