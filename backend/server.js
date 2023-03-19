@@ -2,6 +2,13 @@ const express = require("express");
 const connectDB = require("./config/db");
 const Test = require("./models/testModel");
 const User = require("./models/userModel");
+const Column = require("./models/columnModel");
+const View = require("./models/viewModel");
+const DView = require("./models/dViewModel");
+const TView = require("./models/tViewModel");
+const DataSource = require("./models/dataSourceModel");
+const App = require("./models/appModel");
+
 
 // cores required for other domains to call our api urls
 const cors = require("cors");
@@ -18,8 +25,8 @@ app.use(cors());
 app.use(express.json());
 
 // call this function when doing a http get request to this url
-app.get("/testPost", (req, res) => {
-  res.send("working");
+app.get("/testGet", (req, res) => {
+  res.send("Success")
 });
 
 // call this function when doing a http post request to this url
