@@ -6,7 +6,7 @@ import { useState } from "react";
 function LoginScreen() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-
+  // credentialResponse
   function handleSuccess(response) {
     setIsLoggedIn(true);
     // Redirect to the homepage or any other page after successful login
