@@ -17,7 +17,7 @@ function LoginScreen() {
     // decode the credentials
     let decoded = jwt_decode(response.credential);
     console.log(decoded.email);
-    console.log(decoded.family_name);
+    console.log(decoded.name);
     console.log(decoded);
     // Axios call to our backend
     // TODO: axio call to our database to store the user
@@ -33,7 +33,10 @@ function LoginScreen() {
     //   });
 
     axios
-      .post("http://localhost:4000/testPost")
+      .post("http://localhost:4000/testPost", {
+        name: decoded.name,
+        email: decoded.email
+      })
       .then((response) => {
         // handle success
         console.log("success");
