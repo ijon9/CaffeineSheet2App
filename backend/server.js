@@ -42,6 +42,20 @@ app.post("/addUser", async (req, res) => {
     res.status(201).send({ message: "already in db" });
   }
 });
+
+app.get("/getUser", async (req, res) => {
+  console.log(req.body);
+  // const { name, email } = req.body;
+  // const existingUser = await User.findOne({ email });
+  // if (!existingUser) {
+  //   const user = new User({ name: name, email: email });
+  //   await user.save();
+  //   res.status(201).send({ message: "success" });
+  // } else {
+  //   console.log("already in db");
+  //   res.status(201).send({ message: "already in db" });
+  // }
+});
 //-----------------------------
 
 // server host on port 4000
