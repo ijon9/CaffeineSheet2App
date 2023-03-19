@@ -21,8 +21,19 @@ function LoginScreen() {
     console.log(decoded);
     // Axios call to our backend
     // TODO: axio call to our database to store the user
+    // axios
+    //   .get("http://localhost:4000/")
+    //   .then((response) => {
+    //     // handle success
+    //     console.log("success");
+    //   })
+    //   .catch((error) => {
+    //     // handle error
+    //     console.log(error);
+    //   });
+
     axios
-      .get("http://localhost:4000/")
+      .post("http://localhost:4000/testPost")
       .then((response) => {
         // handle success
         console.log("success");

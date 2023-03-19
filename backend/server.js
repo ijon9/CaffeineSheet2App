@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 // call this function when doing a http get request to this url
-app.get("/", (req, res) => {
+app.get("/testPost", (req, res) => {
   res.send("working");
 });
 // call this function when doing a http post request to this url
