@@ -9,6 +9,7 @@ function LoginScreen() {
   // useState hook replaces local variables
   // set isLoggedIn as false
   // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  axios.defaults.withCredentials = true;
   const navigate = useNavigate();
 
   // when user sucessfully logs in with their google account
@@ -16,9 +17,6 @@ function LoginScreen() {
     // setIsLoggedIn(true);
     // decode the credentials
     let decoded = jwt_decode(response.credential);
-    // console.log(decoded.email);
-    // console.log(decoded.family_name);
-    // console.log(decoded);
     // Axios call to our backend
     // TODO: axio call to our database to store the user
     axios
@@ -29,7 +27,7 @@ function LoginScreen() {
       .then((response) => {
         // handle success
         // if success store email in the localstorage
-        localStorage.setItem("email", decoded.email);
+        // localStorage.setItem("email", decoded.email);
         // Redirect to the homepage or any other page after successful login
         navigate("/yourapps");
       })
@@ -37,8 +35,6 @@ function LoginScreen() {
         // handle error
         console.log(error);
       });
-
-    
   }
   return (
     <>

@@ -1,4 +1,5 @@
 const express = require("express");
+const session = require("express-session");
 const connectDB = require("./config/db");
 const Test = require("./models/testModel");
 const User = require("./models/userModel");
@@ -8,7 +9,7 @@ const DView = require("./models/dViewModel");
 const TView = require("./models/tViewModel");
 const DataSource = require("./models/dataSourceModel");
 const App = require("./models/appModel");
-
+const app = express();
 
 // cores required for other domains to call our api urls
 const cors = require("cors");
@@ -17,51 +18,70 @@ const cors = require("cors");
 connectDB();
 
 //use express functions
-const app = express();
+app.use(
+  session({
+    secret: "sheet2app",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 // cor needed for other domains to access these api
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    method: ["GET", "POST"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
-// call this function when doing a http get request to this url
-app.get("/testGet", (req, res) => {
-  res.send("Success")
-});
-
-// call this function when doing a http post request to this url
-app.post("/testPost", async (req, res) => {
-  const fake = new Test({ user: "john doe", age: 39 });
-  await fake.save();
-  res.status(201).send({ message: "success" });
-});
+const isAuth = (req, res, next) => {
+  if (req.session.isAuth) {
+    next();
+  } else {
+    res.status(404).send("YOU ARE NOT AUTHENTICATED");
+  }
+};
 
 app.post("/addUser", async (req, res) => {
-  // console.log(req.body);
   const { name, email } = req.body;
   const existingUser = await User.findOne({ email });
+  req.session.isAuth = true;
   if (!existingUser) {
-    const user = new User({ name: name, email: email });
+    const user = new User({
+      name: name,
+      email: email,
+      sessionid: req.session.id,
+    });
     await user.save();
     res.status(201).send({ message: "success" });
   } else {
-    console.log("already in db");
+    await User.findOneAndUpdate(
+      { email: email },
+      { sessionid: req.session.id },
+      { new: true }
+    );
     res.status(201).send({ message: "already in db" });
   }
 });
 
-app.get("/getUser", async (req, res) => {
-  console.log(req.body);
-  // const { name, email } = req.body;
-  // const existingUser = await User.findOne({ email });
-  // if (!existingUser) {
-  //   const user = new User({ name: name, email: email });
-  //   await user.save();
-  //   res.status(201).send({ message: "success" });
-  // } else {
-  //   console.log("already in db");
-  //   res.status(201).send({ message: "already in db" });
-  // }
+app.get("/getUser", isAuth, async (req, res) => {
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  res.send(userSessionid.email);
+});
+
+app.post("/logout", async (req, res) => {
+  const useremail = req.body.email;
+  await User.findOneAndUpdate(
+    { email: useremail },
+    { sessionid: "" },
+    { new: true }
+  );
+  req.session.isAuth = false;
+  res.status(200).send("logging out");
 });
 //-----------------------------
 

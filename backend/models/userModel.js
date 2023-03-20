@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const userSchema = mongoose.Schema({
   name: String,
   email: String,
+  sessionid: String,
 });
 
 // export this model
