@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../style/AppHome.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function AppHome() {
   const [user, setUser] = useState("");
@@ -57,10 +57,11 @@ function AppHome() {
       <div className="innerContainer">
         <div className="left">My Apps</div>
         <div className="right">
-          <div>Table View</div>
+          <div>App Name</div>
           {applist.length > 0 ? (
             applist.map((app) => (
-              <div key={app._id}> {app.name} </div>
+              // <div key={app._id}> {app.name} </div>
+              <Link key={app._id} to="/addDataSource"> <div>{app.name}</div> </Link>
             ))
           ) : (
             <div>You Have No App. CREATE SOME</div>
