@@ -5,11 +5,32 @@ import { useNavigate } from "react-router-dom";
 function AppHome(props) {
   const [inputs, setInputs] = useState({});
   const navigate = useNavigate();
+  const [user, setUser] = useState("");
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:4000/getUser")
+      .then((response) => {
+        // console.log("works");
+        // console.log(response.data);
+        setUser(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+  inputs.creator = user;
 
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
-    setInputs(values => ({...values, [name]: value}));
+    if(name === "creator") {
+      setInputs(values => ({...values, [name]: user}));
+    }
+    else {
+      setInputs(values => ({...values, [name]: value}));
+    }
   }
 
   const handleSubmit = (event) => {
@@ -18,9 +39,6 @@ function AppHome(props) {
     // USE AXIOS TO ADD APP TO DATABASE
     navigate("/yourapps")
   }
-  // todo: show unique users
-  // const [email, setEmail] = useState(localStorage.getItem("email"));
-  // console.log(email);
 
   return (
     <div className="container">
@@ -40,7 +58,7 @@ function AppHome(props) {
           <input 
             type="text"
             name="creator"
-            value={inputs.creator || ""}
+            value = {inputs.creator || ""}
             onChange = {handleChange}
           />
         </label><br/>
