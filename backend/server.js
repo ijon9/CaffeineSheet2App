@@ -70,6 +70,7 @@ app.post("/addUser", async (req, res) => {
 
 app.get("/getUser", isAuth, async (req, res) => {
   const sessionid = req.session.id;
+  // console.log(sessionid);
   const userSessionid = await User.findOne({ sessionid });
   res.send(userSessionid.email);
 });
