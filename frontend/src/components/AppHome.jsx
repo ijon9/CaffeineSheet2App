@@ -3,8 +3,10 @@ import "../style/AppHome.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function AppHome(props) {
+function AppHome() {
   const [user, setUser] = useState("");
+  const [applist, setApplist] = useState([]);
+  axios.defaults.withCredentials = true;
   const navigate = useNavigate();
   function addApp() {
     navigate("/addApp");
@@ -14,8 +16,6 @@ function AppHome(props) {
     axios
       .get("http://localhost:4000/getUser")
       .then((response) => {
-        // console.log("works");
-        // console.log(response.data);
         setUser(response.data);
       })
       .catch((error) => {
@@ -28,24 +28,31 @@ function AppHome(props) {
       .post("http://localhost:4000/logout", { email: user })
       .then((response) => {
         console.log(response);
-        console.log("logging out");
-        navigate("/");
+        navigate("/login");
       })
       .catch((error) => {
-        console.log("ERROR");
         console.log(error);
       });
-    // console.log("YOU CLICKED ME!");
   }
 
-  // console.log(email);
   return (
     <div className="container">
-      <div>hello user {user}</div>
-      <div>My Apps</div>
+      <div>
+        <div>{user}</div>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
+      <div className="innerContainer">
+        <div className="left">My Apps</div>
+        <div className="right">
+          <div>Table View</div>
+          {applist.length > 0 ? (
+            <div>{user}</div>
+          ) : (
+            <div>You Have No App. CREATE SOME</div>
+          )}
+        </div>
+      </div>
       <button onClick={addApp}>+ Create App</button>
-      <div>Table View</div>
-      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }

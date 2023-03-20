@@ -1,4 +1,19 @@
-.container{
-    border: solid red;
-    height: 100vh;
+.container {
+  border: solid red;
+  height: 100vh;
+}
+
+.innerContainer {
+  border: solid red;
+  height: 90%;
+}
+
+.left {
+  float: left;
+  width: 50%; /* adjust this value as needed */
+}
+
+.right {
+  float: right;
+  width: 50%; /* adjust this value as needed */
 }

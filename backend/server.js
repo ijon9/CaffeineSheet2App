@@ -41,6 +41,7 @@ const isAuth = (req, res, next) => {
   if (req.session.isAuth) {
     next();
   } else {
+    console.log("this is running?");
     res.status(404).send("YOU ARE NOT AUTHENTICATED");
   }
 };
