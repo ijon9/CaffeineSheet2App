@@ -105,6 +105,16 @@ app.post("/getApps", async (req, res) => {
   res.send(apps);
 })
 //-----------------------------
+app.post("/addDataSource", async (req, res) => {
+  const {name, url, sheetIndex} = req.body;
+  const dataSource = new DataSource({
+    name: name,
+    url: url,
+    sheetIndex: sheetIndex
+  });
+  await dataSource.save();
+  res.send("Added datasource");
+})
 
 // server host on port 4000
 app.listen(4000, () => {
