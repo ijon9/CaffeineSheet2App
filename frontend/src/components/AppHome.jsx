@@ -8,7 +8,7 @@ function AppHome() {
   const [applist, setApplist] = useState([]);
   axios.defaults.withCredentials = true;
   const navigate = useNavigate();
-  
+
   function addApp() {
     navigate("/addApp");
   }
@@ -22,21 +22,19 @@ function AppHome() {
       .catch((error) => {
         console.log(error);
       });
-      
-  }, []);
 
-  // Get apps which you have created
-  // axios.post("http://localhost:4000/getApps", {
-  //   email: user
-  // })
-  // .then((response) => {
-  //   setApplist(response.data);
-  //   console.log(applist)
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
-  // });
-  
+    axios
+      .post("http://localhost:4000/getApps", {
+        email: user
+      })
+      .then((response) => {
+        setApplist(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [user]);
+
 
   function handleLogout() {
     axios
@@ -61,10 +59,9 @@ function AppHome() {
         <div className="right">
           <div>Table View</div>
           {applist.length > 0 ? (
-            <div>{user}</div>
-            // applist.map(app => {
-            //   <div> {app.name} </div>
-            // })
+            applist.map((app) => (
+              <div key={app._id}> {app.name} </div>
+            ))
           ) : (
             <div>You Have No App. CREATE SOME</div>
           )}
