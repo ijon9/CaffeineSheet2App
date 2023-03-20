@@ -37,7 +37,18 @@ function AppHome(props) {
     event.preventDefault();
     console.log(inputs);
     // USE AXIOS TO ADD APP TO DATABASE
-    navigate("/yourapps");
+    axios.post("http://localhost:4000/addApp", {
+      name: inputs.name,
+      creator: inputs.creator,
+      rolesheet: inputs.rolesheet,
+      publish: inputs.publish
+    })
+    .then((response) => {
+      navigate("/yourapps");
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   };
 
   return (
@@ -66,7 +77,7 @@ function AppHome(props) {
           />
         </label>
         <br />
-        <label>
+        {/* <label>
           Data Source URL:<br></br>
           <input
             type="text"
@@ -75,7 +86,7 @@ function AppHome(props) {
             onChange={handleChange}
           />
         </label>
-        <br />
+        <br /> */}
         <label>
           Rolesheet URL:<br></br>
           <input

@@ -85,6 +85,25 @@ app.post("/logout", async (req, res) => {
   req.session.isAuth = false;
   res.status(200).send("logging out");
 });
+
+app.post("/addApp", async (req, res) => {
+  const {name, creator, rolesheet, publish} = req.body;
+  const app = new App({
+    name: name,
+    creator: creator,
+    rolesheet: rolesheet,
+    published: publish === "yes" ? true : false
+  });
+  await app.save();
+  res.send("Added app");
+})
+
+app.post("/getApps", async (req, res) => {
+  const email = req.body.email;
+  const apps = await App.find({ creator: email });
+  console.log(email)
+  res.send(apps);
+})
 //-----------------------------
 
 // server host on port 4000
