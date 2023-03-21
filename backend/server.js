@@ -9,7 +9,6 @@ const DView = require("./models/dViewModel");
 const TView = require("./models/tViewModel");
 const DataSource = require("./models/dataSourceModel");
 
-const fs = require("fs").promises;
 const path = require("path");
 const process = require("process");
 const { authenticate } = require("@google-cloud/local-auth");
@@ -27,6 +26,7 @@ const cors = require("cors");
 connectDB();
 
 //use express functions
+
 app.use(
   session({
     secret: "sheet2app",
@@ -137,6 +137,43 @@ app.post("/getDataSources", async (req, res) => {
   const app = await App.findOne({ _id: appId });
   const dsources = app.dataSources;
   res.send(dsources);
+});
+
+//-------------
+async function authorize() {
+  const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
+  const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
+
+  client = await authenticate({
+    scopes: SCOPES,
+    keyfilePath: CREDENTIALS_PATH,
+  });
+  return client;
+}
+
+// example for showing how google sheet works
+app.get("/googlesheet", async (req, res) => {
+  const authClient = await authorize();
+  const request = {
+    spreadsheetId: "1yA78xV_MyP_E-biEw8-rrHXdK2R-yuzncZSeUxbGTzo",
+    range: "Sheet1",
+
+    valueRenderOption: "FORMATTED_VALUE",
+
+    dateTimeRenderOption: "FORMATTED_STRING",
+
+    auth: authClient,
+  };
+
+  try {
+    const response = (await sheets.spreadsheets.values.get(request)).data;
+    // TODO: Change code below to process the `response` object:
+    console.log(JSON.stringify(response, null, 2));
+  } catch (err) {
+    console.error(err);
+  }
+
+  res.send("yay");
 });
 
 // server host on port 4000
