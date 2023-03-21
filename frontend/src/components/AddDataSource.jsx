@@ -16,19 +16,36 @@ function AppHome(props) {
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log(inputs);
+    console.log("handleSubmit(spreadsheetID) == ", inputs.url.split("/")[5]);
+    console.log("handleSubmit(range) == ", inputs.sheetIndex);
+
     // USE AXIOS TO ADD APP TO DATABASE
-    axios.post("http://localhost:4000/addDataSource", {
-      appId: localStorage.currId,
-      name: inputs.name,
-      url: inputs.url,
-      sheetIndex: inputs.sheetIndex
-    })
-    .then((response) => {
-      navigate("/openApp");
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    axios
+      .post("http://localhost:4000/addDataSource", {
+        appId: localStorage.currId,
+        name: inputs.name,
+        url: inputs.url,
+        sheetIndex: inputs.sheetIndex,
+      })
+      .then((response) => {
+        navigate("/openApp");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    
+    //just to check if i'm getting data from spreadsheet
+    axios
+      .post("http://localhost:4000/googlesheet", {
+        url: inputs.url,
+        range: inputs.sheetIndex,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (

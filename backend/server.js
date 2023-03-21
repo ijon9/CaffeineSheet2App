@@ -152,16 +152,20 @@ async function authorize() {
 }
 
 // example for showing how google sheet works
-app.get("/googlesheet", async (req, res) => {
+app.post("/googlesheet", async (req, res) => {
+  const url = req.body.url;
+  const spreadsheetId = url.split("/")[5];
+  console.log("server.js(spreadsheetId) = ", spreadsheetId);
+  const range = "Sheet" + req.body.range;
+  console.log("server.js(range) = ", range);
+
   const authClient = await authorize();
+
   const request = {
-    spreadsheetId: "1yA78xV_MyP_E-biEw8-rrHXdK2R-yuzncZSeUxbGTzo",
-    range: "Sheet1",
-
+    spreadsheetId: spreadsheetId,
+    range: range,
     valueRenderOption: "FORMATTED_VALUE",
-
     dateTimeRenderOption: "FORMATTED_STRING",
-
     auth: authClient,
   };
 
@@ -169,11 +173,10 @@ app.get("/googlesheet", async (req, res) => {
     const response = (await sheets.spreadsheets.values.get(request)).data;
     // TODO: Change code below to process the `response` object:
     console.log(JSON.stringify(response, null, 2));
+    res.send(response);
   } catch (err) {
     console.error(err);
   }
-
-  res.send("yay");
 });
 
 // server host on port 4000
