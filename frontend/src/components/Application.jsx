@@ -76,10 +76,22 @@ function AppHome() {
             <div>You Have No data sources. CREATE SOME</div>
           )}
         </div>
-        <div className="right">Views</div>
+        <div className="right">Views
+          <div className="innerContainer">
+          {dataSources.length > 0 ? (
+            dataSources.map((dsource) => (
+            <div>
+              <button className="left" onClick={addView}>Table View</button>
+              <button className="right" onClick={addView}>Detail View</button>
+            </div>
+            ))
+          ) : (
+            <div>Nothing to view</div>
+          )}
+          </div>
+        </div>
       </div>
       <button className="left" onClick={addDataSource}>Add DataSource</button>
-      <button className="right" onClick={addView}>Add View</button>
     </div>
   );
 }
