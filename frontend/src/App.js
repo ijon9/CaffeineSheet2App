@@ -4,6 +4,7 @@ import LoginScreen from "./components/LoginScreen";
 import AppHome from "./components/AppHome";
 import AddApp from "./components/AddApp";
 import AddDataSource from "./components/AddDataSource";
+import Application from "./components/Application"
 function App() {
   return (
     <BrowserRouter>
@@ -12,6 +13,7 @@ function App() {
         <Route path="/yourapps" element={<AppHome />} />
         <Route path="/addApp" element={<AddApp />} />
         <Route path="/addDataSource" element={<AddDataSource />} />
+        <Route path="/openApp" element={<Application />} />
       </Routes>
     </BrowserRouter>
   );

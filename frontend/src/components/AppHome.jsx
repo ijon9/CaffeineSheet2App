@@ -48,6 +48,11 @@ function AppHome() {
       });
   }
 
+  function openApp(id) {
+    localStorage.currId = id;
+    navigate("/openApp");
+  }
+
   return (
     <div className="container">
       <div>
@@ -60,8 +65,7 @@ function AppHome() {
           <div>App Name</div>
           {applist.length > 0 ? (
             applist.map((app) => (
-              // <div key={app._id}> {app.name} </div>
-              <Link key={app._id} to="/addDataSource"> <div>{app.name}</div> </Link>
+                <div key={app._id} onClick={() => openApp(app._id)} ><Link>{app.name}</Link></div>
             ))
           ) : (
             <div>You Have No App. CREATE SOME</div>
