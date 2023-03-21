@@ -106,13 +106,22 @@ app.post("/getApps", async (req, res) => {
 })
 //-----------------------------
 app.post("/addDataSource", async (req, res) => {
-  const {name, url, sheetIndex} = req.body;
+  const {appId, name, url, sheetIndex} = req.body;
   const dataSource = new DataSource({
     name: name,
     url: url,
     sheetIndex: sheetIndex
   });
   await dataSource.save();
+  const app = await App.findOne({ _id: appId });
+  if(app.dataSources === undefined) {
+    await App.findOneAndUpdate({ _id : appId}, { dataSources : [dataSource]})
+  }
+  else {
+    var dSources = app.dataSources;
+    dSources.push(dataSource);
+    await App.findOneAndUpdate({ _id : appId}, { dataSources : dSources})
+  }
   res.send("Added datasource");
 })
 

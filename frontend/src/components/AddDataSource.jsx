@@ -18,12 +18,13 @@ function AppHome(props) {
     console.log(inputs);
     // USE AXIOS TO ADD APP TO DATABASE
     axios.post("http://localhost:4000/addDataSource", {
+      appId: localStorage.currId,
       name: inputs.name,
       url: inputs.url,
       sheetIndex: inputs.sheetIndex
     })
     .then((response) => {
-      navigate("/yourapps");
+      navigate("/openApp");
     })
     .catch((error) => {
       console.log(error);
