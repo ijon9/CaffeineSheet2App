@@ -52,8 +52,8 @@ function AppHome() {
     navigate("/addDataSource");
   }
 
-  function addView() {
-    navigate("/addView");
+  function addTableView() {
+    navigate("/addTableView");
   }
 
   return (
@@ -83,8 +83,7 @@ function AppHome() {
           {dataSources.length > 0 ? (
             dataSources.map((dsource) => (
             <div>
-              <button className="left" onClick={addView}>Table View</button>
-              <button className="right" onClick={addView}>Detail View</button>
+              <button className="left" onClick={addTableView}>Table View</button>
             </div>
             ))
           ) : (
