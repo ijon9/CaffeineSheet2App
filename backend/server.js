@@ -8,6 +8,15 @@ const View = require("./models/viewModel");
 const DView = require("./models/dViewModel");
 const TView = require("./models/tViewModel");
 const DataSource = require("./models/dataSourceModel");
+
+const fs = require("fs").promises;
+const path = require("path");
+const process = require("process");
+const { authenticate } = require("@google-cloud/local-auth");
+
+const { google } = require("googleapis");
+const sheets = google.sheets("v4");
+
 const App = require("./models/appModel");
 const app = express();
 
@@ -87,49 +96,48 @@ app.post("/logout", async (req, res) => {
 });
 
 app.post("/addApp", async (req, res) => {
-  const {name, creator, rolesheet, publish} = req.body;
+  const { name, creator, rolesheet, publish } = req.body;
   const app = new App({
     name: name,
     creator: creator,
     rolesheet: rolesheet,
-    published: publish === "yes" ? true : false
+    published: publish === "yes" ? true : false,
   });
   await app.save();
   res.send("Added app");
-})
+});
 
 app.post("/getApps", async (req, res) => {
   const email = req.body.email;
   const apps = await App.find({ creator: email });
   res.send(apps);
-})
+});
 //-----------------------------
 app.post("/addDataSource", async (req, res) => {
-  const {appId, name, url, sheetIndex} = req.body;
+  const { appId, name, url, sheetIndex } = req.body;
   const dataSource = new DataSource({
     name: name,
     url: url,
-    sheetIndex: sheetIndex
+    sheetIndex: sheetIndex,
   });
   await dataSource.save();
   const app = await App.findOne({ _id: appId });
-  if(app.dataSources === undefined) {
-    await App.findOneAndUpdate({ _id : appId}, { dataSources : [dataSource]})
-  }
-  else {
+  if (app.dataSources === undefined) {
+    await App.findOneAndUpdate({ _id: appId }, { dataSources: [dataSource] });
+  } else {
     var dSources = app.dataSources;
     dSources.push(dataSource);
-    await App.findOneAndUpdate({ _id : appId}, { dataSources : dSources})
+    await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
   }
   res.send("Added datasource");
-})
+});
 
 app.post("/getDataSources", async (req, res) => {
   const appId = req.body.appId;
-  const app = await App.findOne({ _id : appId });
+  const app = await App.findOne({ _id: appId });
   const dsources = app.dataSources;
   res.send(dsources);
-})
+});
 
 // server host on port 4000
 app.listen(4000, () => {
