@@ -32,6 +32,10 @@ function AppHome() {
       });
   }, [user]);
 
+  function handleBackToApp() {
+    navigate("/yourapps");
+  }
+
   function handleLogout() {
     axios
       .post("http://localhost:4000/logout", { email: user })
@@ -57,6 +61,10 @@ function AppHome() {
       <div>
         <div>{user}</div>
         <button onClick={handleLogout}>Logout</button>
+      </div>
+      <div>
+        <div></div>
+        <button onClick={handleBackToApp}>Back to app</button>
       </div>
       <div className="innerContainer">
         <div className="left">
