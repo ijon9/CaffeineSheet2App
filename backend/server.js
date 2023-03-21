@@ -101,7 +101,6 @@ app.post("/addApp", async (req, res) => {
 app.post("/getApps", async (req, res) => {
   const email = req.body.email;
   const apps = await App.find({ creator: email });
-  console.log(email)
   res.send(apps);
 })
 //-----------------------------
@@ -123,6 +122,13 @@ app.post("/addDataSource", async (req, res) => {
     await App.findOneAndUpdate({ _id : appId}, { dataSources : dSources})
   }
   res.send("Added datasource");
+})
+
+app.post("/getDataSources", async (req, res) => {
+  const appId = req.body.appId;
+  const app = await App.findOne({ _id : appId });
+  const dsources = app.dataSources;
+  res.send(dsources);
 })
 
 // server host on port 4000
