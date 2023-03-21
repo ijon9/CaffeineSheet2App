@@ -173,6 +173,7 @@ app.post("/googlesheet", async (req, res) => {
     const response = (await sheets.spreadsheets.values.get(request)).data;
     // TODO: Change code below to process the `response` object:
     console.log(JSON.stringify(response, null, 2));
+    
     res.send(response);
   } catch (err) {
     console.error(err);

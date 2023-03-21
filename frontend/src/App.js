@@ -5,6 +5,7 @@ import AppHome from "./components/AppHome";
 import AddApp from "./components/AddApp";
 import AddDataSource from "./components/AddDataSource";
 import Application from "./components/Application"
+import TableView from "./components/TableView"
 function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ function App() {
         <Route path="/addApp" element={<AddApp />} />
         <Route path="/addDataSource" element={<AddDataSource />} />
         <Route path="/openApp" element={<Application />} />
+        <Route path="/tableView" element={<TableView />} />
       </Routes>
     </BrowserRouter>
   );
