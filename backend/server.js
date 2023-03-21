@@ -151,6 +151,33 @@ async function authorize() {
   return client;
 }
 
+app.post("/addTableView", async (req, res) => {
+  const url = req.body.url;
+  const spreadsheetId = url.split("/")[5];
+  console.log("server.js(spreadsheetId) = ", spreadsheetId);
+  const range = "Sheet" + req.body.range;
+  console.log("server.js(range) = ", range);
+
+  const authClient = await authorize();
+
+  const request = {
+    spreadsheetId: spreadsheetId,
+    range: range,
+    valueRenderOption: "FORMATTED_VALUE",
+    dateTimeRenderOption: "FORMATTED_STRING",
+    auth: authClient,
+  };
+
+  try {
+    const response = (await sheets.spreadsheets.values.get(request)).data;
+    // TODO: Change code below to process the `response` object:
+    console.log(JSON.stringify(response, null, 2));
+    res.send(response);
+  } catch (err) {
+    console.error(err);
+  }
+})
+
 // example for showing how google sheet works
 app.post("/googlesheet", async (req, res) => {
   const url = req.body.url;
