@@ -25,7 +25,7 @@ function AppHome() {
 
     axios
       .post("http://localhost:4000/getApps", {
-        email: user
+        email: user,
       })
       .then((response) => {
         setApplist(response.data);
@@ -34,7 +34,6 @@ function AppHome() {
         console.log(error);
       });
   }, [user]);
-
 
   function handleLogout() {
     axios
@@ -65,7 +64,9 @@ function AppHome() {
           <div>App Name</div>
           {applist.length > 0 ? (
             applist.map((app) => (
-                <div key={app._id} onClick={() => openApp(app._id)} ><Link>{app.name}</Link></div>
+              <div key={app._id} onClick={() => openApp(app._id)}>
+                <Link>{app.name}</Link>
+              </div>
             ))
           ) : (
             <div>You Have No App. CREATE SOME</div>

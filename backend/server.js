@@ -8,6 +8,14 @@ const View = require("./models/viewModel");
 const DView = require("./models/dViewModel");
 const TView = require("./models/tViewModel");
 const DataSource = require("./models/dataSourceModel");
+
+const path = require("path");
+const process = require("process");
+const { authenticate } = require("@google-cloud/local-auth");
+
+const { google } = require("googleapis");
+const sheets = google.sheets("v4");
+
 const App = require("./models/appModel");
 const app = express();
 
@@ -18,6 +26,7 @@ const cors = require("cors");
 connectDB();
 
 //use express functions
+
 app.use(
   session({
     secret: "sheet2app",
@@ -87,49 +96,85 @@ app.post("/logout", async (req, res) => {
 });
 
 app.post("/addApp", async (req, res) => {
-  const {name, creator, rolesheet, publish} = req.body;
+  const { name, creator, rolesheet, publish } = req.body;
   const app = new App({
     name: name,
     creator: creator,
     rolesheet: rolesheet,
-    published: publish === "yes" ? true : false
+    published: publish === "yes" ? true : false,
   });
   await app.save();
   res.send("Added app");
-})
+});
 
 app.post("/getApps", async (req, res) => {
   const email = req.body.email;
   const apps = await App.find({ creator: email });
   res.send(apps);
-})
+});
 //-----------------------------
 app.post("/addDataSource", async (req, res) => {
-  const {appId, name, url, sheetIndex} = req.body;
+  const { appId, name, url, sheetIndex } = req.body;
   const dataSource = new DataSource({
     name: name,
     url: url,
-    sheetIndex: sheetIndex
+    sheetIndex: sheetIndex,
   });
   await dataSource.save();
   const app = await App.findOne({ _id: appId });
-  if(app.dataSources === undefined) {
-    await App.findOneAndUpdate({ _id : appId}, { dataSources : [dataSource]})
-  }
-  else {
+  if (app.dataSources === undefined) {
+    await App.findOneAndUpdate({ _id: appId }, { dataSources: [dataSource] });
+  } else {
     var dSources = app.dataSources;
     dSources.push(dataSource);
-    await App.findOneAndUpdate({ _id : appId}, { dataSources : dSources})
+    await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
   }
   res.send("Added datasource");
-})
+});
 
 app.post("/getDataSources", async (req, res) => {
   const appId = req.body.appId;
-  const app = await App.findOne({ _id : appId });
+  const app = await App.findOne({ _id: appId });
   const dsources = app.dataSources;
   res.send(dsources);
-})
+});
+
+//-------------
+async function authorize() {
+  const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
+  const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
+
+  client = await authenticate({
+    scopes: SCOPES,
+    keyfilePath: CREDENTIALS_PATH,
+  });
+  return client;
+}
+
+// example for showing how google sheet works
+app.get("/googlesheet", async (req, res) => {
+  const authClient = await authorize();
+  const request = {
+    spreadsheetId: "1yA78xV_MyP_E-biEw8-rrHXdK2R-yuzncZSeUxbGTzo",
+    range: "Sheet1",
+
+    valueRenderOption: "FORMATTED_VALUE",
+
+    dateTimeRenderOption: "FORMATTED_STRING",
+
+    auth: authClient,
+  };
+
+  try {
+    const response = (await sheets.spreadsheets.values.get(request)).data;
+    // TODO: Change code below to process the `response` object:
+    console.log(JSON.stringify(response, null, 2));
+  } catch (err) {
+    console.error(err);
+  }
+
+  res.send("yay");
+});
 
 // server host on port 4000
 app.listen(4000, () => {
