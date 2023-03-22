@@ -4,11 +4,13 @@
 
 // function AppHome(props) {
 //     axios.defaults.withCredentials = true;
-//     //const navigate = useNavigate();
-
+//     const [dataSource, setDataSource] = useState([]);
+//     const navigate = useNavigate();
+//     const dataSourceID = props;
+    
 //     useEffect(() => {
 //         axios
-//           .get("http://localhost:4000/tableView", {
+//           .get("http://localhost:4000/get", {
 //             url: inputs.url,
 //             range: inputs.sheetIndex,
 //           })
@@ -21,12 +23,7 @@
 //       }, []);
 
 //     return (
-//         <div className="container">
-//             <h1>Table View</h1>
-//             <div className="innerContainer">
-                
-//             </div>
-//         </div>
+        
 //     )
-// }
+// };
 // export default AppHome;
