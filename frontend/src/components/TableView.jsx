@@ -6,7 +6,8 @@ function AppHome(props) {
     axios.defaults.withCredentials = true;
     const [dataSource, setDataSource] = useState([]);
     const [table, setTable] = useState([]);
-    const dataSourceID = props;
+    // const dataSourceID = props;
+    const dataSourceID = localStorage.dataSourceID;
     
     
     useEffect(() => {

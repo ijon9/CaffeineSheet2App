@@ -73,7 +73,9 @@ function AppHome() {
   }
 
   function tableView(dataSourceID) {
-    navigate("/tableView", { dataSourceID: dataSourceID});
+    localStorage.dataSourceID = dataSourceID;
+    // navigate("/tableView", { dataSourceID: dataSourceID});
+    navigate("/tableView")
   }
 
   const handleChange = (event) => {
