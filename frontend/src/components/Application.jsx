@@ -73,7 +73,7 @@ function AppHome() {
   }
 
   function tableView(dataSource) {
-    navigate("/tableView", { dataSource: dataSource });
+    navigate("/tableView", { dataSource: dataSource});
   }
 
   const handleChange = (event) => {
@@ -171,28 +171,11 @@ function AppHome() {
           DataSources
           {dataSources.length > 0 ? (
             dataSources.map((dsource) => (
-              <div> {dsource.name} </div>
-              // <div key={app._id} onClick={() => openApp(app._id)} ><Link>{app.name}</Link></div>
+              <div onClick={() => tableView(dsource.name)} ><Link>{dsource.name}</Link></div>
             ))
           ) : (
             <div>You Have No data sources. CREATE SOME</div>
           )}
-        </div>
-        <div className="right">
-          Views
-          <div className="innerContainer">
-            {dataSources.length > 0 ? (
-              dataSources.map((dsource) => (
-                <div>
-                  <button className="left" onClick={tableView}>
-                    Table View
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div>Nothing to view</div>
-            )}
-          </div>
         </div>
       </div>
       <button className="left" onClick={addDataSource}>
