@@ -151,7 +151,7 @@ async function authorize() {
   return client;
 }
 
-app.post("/addTableView", async (req, res) => {
+app.post("/tableView", async (req, res) => {
   const url = req.body.url;
   const spreadsheetId = url.split("/")[5];
   console.log("server.js(spreadsheetId) = ", spreadsheetId);

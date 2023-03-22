@@ -84,7 +84,7 @@ function AppHome() {
             {dataSources.length > 0 ? (
               dataSources.map((dsource) => (
                 <div>
-                  <button className="left" onClick={tableView(dsource)}>
+                  <button className="left" onClick={tableView}>
                     Table View
                   </button>
                 </div>
