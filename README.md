@@ -18,5 +18,6 @@
 # Backend
 
 - cd into backend folder
+- run 'npm install @google-cloud/local-auth' to download google authorization dependencies
 - run 'npm run server' to start the server with nodemon
 - run 'npm run start' to just start the server with node
