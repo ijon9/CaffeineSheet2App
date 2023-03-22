@@ -167,7 +167,6 @@ function AppHome() {
         <input type="submit" value="Edit App"/> <br/><br/>
       </form>
       <div className="innerContainer">
-        <div className="left">
           DataSources
           {dataSources.length > 0 ? (
             dataSources.map((dsource) => (
@@ -176,7 +175,6 @@ function AppHome() {
           ) : (
             <div>You Have No data sources. CREATE SOME</div>
           )}
-        </div>
       </div>
       <button className="left" onClick={addDataSource}>
         Add DataSource
