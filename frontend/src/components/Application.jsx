@@ -72,8 +72,8 @@ function AppHome() {
     navigate("/addDataSource");
   }
 
-  function tableView(dataSource) {
-    navigate("/tableView", { dataSource: dataSource});
+  function tableView(dataSourceID) {
+    navigate("/tableView", { dataSourceID: dataSourceID});
   }
 
   const handleChange = (event) => {
@@ -167,16 +167,14 @@ function AppHome() {
         <input type="submit" value="Edit App"/> <br/><br/>
       </form>
       <div className="innerContainer">
-        <div className="left">
           DataSources
           {dataSources.length > 0 ? (
             dataSources.map((dsource) => (
-              <div onClick={() => tableView(dsource.name)} ><Link>{dsource.name}</Link></div>
+              <div onClick={() => tableView(dsource._id)} ><Link>{dsource.name}</Link></div>
             ))
           ) : (
             <div>You Have No data sources. CREATE SOME</div>
           )}
-        </div>
       </div>
       <button className="left" onClick={addDataSource}>
         Add DataSource

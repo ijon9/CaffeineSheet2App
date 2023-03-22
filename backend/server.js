@@ -19,6 +19,8 @@ const sheets = google.sheets("v4");
 const App = require("./models/appModel");
 const app = express();
 
+const dataSource = express();
+
 // cores required for other domains to call our api urls
 const cors = require("cors");
 
@@ -150,6 +152,12 @@ app.post("/addDataSource", async (req, res) => {
     await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
   }
   res.send("Added datasource");
+});
+
+app.post("/getDataSource", async (req, res) => {
+  const dataSourceID = req.body.data;
+  const dsource = await DataSource.findOne({ _id: dataSourceID });
+  res.send(dsource);
 });
 
 app.post("/getDataSources", async (req, res) => {
