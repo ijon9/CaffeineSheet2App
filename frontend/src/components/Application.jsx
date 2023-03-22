@@ -170,7 +170,10 @@ function AppHome() {
           DataSources
           {dataSources.length > 0 ? (
             dataSources.map((dsource) => (
-              <div onClick={() => tableView(dsource._id)} ><Link>{dsource.name}</Link></div>
+              <div>
+                <div onClick={() => tableView(dsource._id)} ><Link>{dsource.name}</Link></div>
+                <button>Hi</button>
+              </div>
             ))
           ) : (
             <div>You Have No data sources. CREATE SOME</div>
