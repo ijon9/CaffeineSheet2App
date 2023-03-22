@@ -119,20 +119,21 @@ app.post("/getOneApp", async (req, res) => {
   const appId = req.body.appId;
   const app = await App.findOne({ _id: appId });
   res.send(app);
-})
+});
 
-app.post("/editApp", async(req, res) => {
+app.post("/editApp", async (req, res) => {
   const { appId, name, creator, rolesheet, publish } = req.body;
   await App.findOneAndUpdate(
-    { _id: appId }, 
-    { name: name, 
+    { _id: appId },
+    {
+      name: name,
       creator: creator,
       roleSheet: rolesheet,
-      published: publish === "yes" ? true : false
-  });
+      published: publish === "yes" ? true : false,
+    }
+  );
   res.send("Edited app");
-
-})
+});
 
 //-----------------------------
 app.post("/addDataSource", async (req, res) => {
@@ -155,7 +156,7 @@ app.post("/addDataSource", async (req, res) => {
 });
 
 app.post("/getDataSource", async (req, res) => {
-  const dataSourceID = req.body.data;
+  const dataSourceID = req.body.dataSourceID;
   const dsource = await DataSource.findOne({ _id: dataSourceID });
   res.send(dsource);
 });
@@ -204,7 +205,7 @@ app.post("/tableView", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
-})
+});
 
 // example for showing how google sheet works
 app.post("/googlesheet", async (req, res) => {
@@ -228,7 +229,7 @@ app.post("/googlesheet", async (req, res) => {
     const response = (await sheets.spreadsheets.values.get(request)).data;
     // TODO: Change code below to process the `response` object:
     console.log(JSON.stringify(response, null, 2));
-    
+
     res.send(response);
   } catch (err) {
     console.error(err);

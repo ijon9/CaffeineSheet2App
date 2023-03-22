@@ -35,17 +35,17 @@ function AppHome(props) {
       });
     
     //just to check if i'm getting data from spreadsheet
-    axios
-      .post("http://localhost:4000/googlesheet", {
-        url: inputs.url,
-        range: inputs.sheetIndex,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    // axios
+    //   .post("http://localhost:4000/googlesheet", {
+    //     url: inputs.url,
+    //     range: inputs.sheetIndex,
+    //   })
+    //   .then((response) => {
+    //     console.log(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
   };
 
   return (
