@@ -112,6 +112,26 @@ app.post("/getApps", async (req, res) => {
   const apps = await App.find({ creator: email });
   res.send(apps);
 });
+
+app.post("/getOneApp", async (req, res) => {
+  const appId = req.body.appId;
+  const app = await App.findOne({ _id: appId });
+  res.send(app);
+})
+
+app.post("/editApp", async(req, res) => {
+  const { appId, name, creator, rolesheet, publish } = req.body;
+  await App.findOneAndUpdate(
+    { _id: appId }, 
+    { name: name, 
+      creator: creator,
+      roleSheet: rolesheet,
+      published: publish === "yes" ? true : false
+  });
+  res.send("Edited app");
+
+})
+
 //-----------------------------
 app.post("/addDataSource", async (req, res) => {
   const { appId, name, url, sheetIndex } = req.body;
