@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
+import { Box, Container, Typography} from "@mui/material";
 
 function LoginScreen() {
   // useState hook replaces local variables
@@ -33,16 +34,62 @@ function LoginScreen() {
         console.log(error);
       });
   }
+
   return (
-    <>
-      <div>LoginScreen</div>
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={() => {
-          console.log("Login Failed");
-        }}
-      />
-    </>
+    <Box
+      sx={{
+        mt: "11%",
+        mr: "4%",
+        display: "flex",
+        alignItems: "center",
+        backgroundColor: "white",
+      }}
+    >
+      <Container maxWidth="xs">
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            display: "inline",
+          }}
+          variant="h1"
+        >
+          Sheet
+        </Typography>
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            display: "inline",
+            color: "#68DF5E",
+          }}
+          variant="h1"
+        >
+          2
+        </Typography>
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            display: "inline",
+          }}
+          variant="h1"
+        >
+          App
+        </Typography>
+        <Box sx={{ mt: "30%", ml:"25%" }}>
+          <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+          />
+        </Box>
+      </Container>
+    </Box>
   );
 }
 
