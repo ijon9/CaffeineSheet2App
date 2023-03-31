@@ -3,6 +3,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { Box, Container, Typography } from "@mui/material";
 
 function LoginScreen() {
   const navigate = useNavigate();
@@ -24,10 +25,58 @@ function LoginScreen() {
   });
 
   return (
-    <>
-      <div>LoginScreen</div>
-      <button onClick={() => login()}>Use Google Login</button>
-    </>
+    <Box
+      sx={{
+        mt: "11%",
+        mr: "4%",
+        display: "flex",
+        alignItems: "center",
+        backgroundColor: "white",
+      }}
+    >
+      <Container maxWidth="xs">
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            display: "inline",
+          }}
+          variant="h1"
+        >
+          Sheet
+        </Typography>
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            display: "inline",
+            color: "#68DF5E",
+          }}
+          variant="h1"
+        >
+          2
+        </Typography>
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            display: "inline",
+          }}
+          variant="h1"
+        >
+          App
+        </Typography>
+        <Box sx={{ mt: "30%", ml: "25%" }}>
+          <>
+            <div>LoginScreen</div>
+            <button onClick={() => login()}>Use Google Login</button>
+          </>
+        </Box>
+      </Container>
+    </Box>
   );
 }
 

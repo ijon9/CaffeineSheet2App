@@ -48,7 +48,7 @@ function AppDetail() {
         sheetIndex: formData.sheetIndex,
       })
       .then((response) => {
-        console.log(response.data);
+        navigate(`/app/${id}/table/${response.data._id}`);
         setDataSources((value) => [...value, response.data]);
       })
       .catch((error) => {
