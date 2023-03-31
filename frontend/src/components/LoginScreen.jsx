@@ -1,47 +1,32 @@
 import React from "react";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import jwt_decode from "jwt-decode";
 import axios from "axios";
 
 function LoginScreen() {
-  // useState hook replaces local variables
-  // set isLoggedIn as false
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  axios.defaults.withCredentials = true;
   const navigate = useNavigate();
+  axios.defaults.withCredentials = true;
 
   // when user sucessfully logs in with their google account
-  function handleSuccess(response) {
-    // setIsLoggedIn(true);
-    // decode the credentials
-    let decoded = jwt_decode(response.credential);
-    // Axios call to our backend
-    // TODO: axio call to our database to store the user
-    axios
-      .post("http://localhost:4000/addUser", {
-        name: decoded.name,
-        email: decoded.email,
-      })
-      .then((response) => {
-        // Redirect to the homepage or any other page after successful login
-        navigate("/yourapps");
-      })
-      .catch((error) => {
-        // handle error
-        console.log(error);
-      });
-  }
+  const login = useGoogleLogin({
+    onSuccess: async (codeResponse) => {
+      await axios
+        .post("http://localhost:4000/logUser", {
+          code: codeResponse.code,
+        })
+        .then((response) => {
+          navigate("/home");
+        });
+    },
+    flow: "auth-code",
+    scope: "https://www.googleapis.com/auth/spreadsheets profile email",
+  });
+
   return (
     <>
       <div>LoginScreen</div>
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={() => {
-          console.log("Login Failed");
-        }}
-      />
+      <button onClick={() => login()}>Use Google Login</button>
     </>
   );
 }

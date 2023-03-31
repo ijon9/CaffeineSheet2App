@@ -6,6 +6,7 @@ const userSchema = mongoose.Schema({
   name: String,
   email: String,
   sessionid: String,
+  refreshToken: String,
 });
 
 // export this model

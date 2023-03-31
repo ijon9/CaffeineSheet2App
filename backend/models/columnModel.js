@@ -4,10 +4,12 @@ const mongoose = require("mongoose");
 const columnSchema = mongoose.Schema({
   colLetter: String,
   name: String,
-  initialValue: Object,
+  initialValue: mongoose.Schema.Types.Mixed,
   label: Boolean,
   // May have to change this
-  reference: String
+  reference: String,
+  type: String,
+  key: Boolean,
 });
 
 // export this model

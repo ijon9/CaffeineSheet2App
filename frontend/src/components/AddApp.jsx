@@ -12,8 +12,6 @@ function AppHome(props) {
     axios
       .get("http://localhost:4000/getUser")
       .then((response) => {
-        // console.log("works");
-        // console.log(response.data);
         setUser(response.data);
       })
       .catch((error) => {
@@ -37,18 +35,19 @@ function AppHome(props) {
     event.preventDefault();
     console.log(inputs);
     // USE AXIOS TO ADD APP TO DATABASE
-    axios.post("http://localhost:4000/addApp", {
-      name: inputs.name,
-      creator: inputs.creator,
-      rolesheet: inputs.rolesheet,
-      publish: inputs.publish
-    })
-    .then((response) => {
-      navigate("/yourapps");
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    axios
+      .post("http://localhost:4000/addApp", {
+        name: inputs.name,
+        creator: inputs.creator,
+        rolesheet: inputs.rolesheet,
+        publish: inputs.publish,
+      })
+      .then((response) => {
+        navigate("/yourapps");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -77,16 +76,7 @@ function AppHome(props) {
           />
         </label>
         <br />
-        {/* <label>
-          Data Source URL:<br></br>
-          <input
-            type="text"
-            name="datasource"
-            value={inputs.datasource || ""}
-            onChange={handleChange}
-          />
-        </label>
-        <br /> */}
+
         <label>
           Rolesheet URL:<br></br>
           <input

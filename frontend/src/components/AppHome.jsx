@@ -47,33 +47,30 @@ function AppHome() {
       });
   }
 
-  function openApp(id) {
-    localStorage.currId = id;
-    navigate("/openApp");
+  function handleHome() {
+    navigate("/home");
   }
 
   return (
     <div className="container">
+      <div>{user}</div>
+      <button onClick={handleLogout}>Logout</button>
+      <button onClick={addApp}>Create App</button>
+      <button onClick={handleHome}>Home</button>
       <div>
-        <div>{user}</div>
-        <button onClick={handleLogout}>Logout</button>
-      </div>
-      <div className="innerContainer">
-        <div className="left">My Apps</div>
-        <div className="right">
-          <div>App Name</div>
+        <div>App Names</div>
+        <div>
           {applist.length > 0 ? (
             applist.map((app) => (
-              <div key={app._id} onClick={() => openApp(app._id)}>
-                <Link>{app.name}</Link>
+              <div key={app._id}>
+                <Link to={`/app/${app._id}`}>{app.name}</Link>
               </div>
             ))
           ) : (
-            <div>You Have No App. CREATE SOME</div>
+            <div>No Apps</div>
           )}
         </div>
       </div>
-      <button onClick={addApp}>+ Create App</button>
     </div>
   );
 }

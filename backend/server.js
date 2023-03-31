@@ -1,7 +1,6 @@
 const express = require("express");
 const session = require("express-session");
 const connectDB = require("./config/db");
-const Test = require("./models/testModel");
 const User = require("./models/userModel");
 const Column = require("./models/columnModel");
 const View = require("./models/viewModel");
@@ -10,6 +9,7 @@ const TView = require("./models/tViewModel");
 const DataSource = require("./models/dataSourceModel");
 
 const path = require("path");
+const { OAuth2Client } = require("google-auth-library");
 const process = require("process");
 const { authenticate } = require("@google-cloud/local-auth");
 
@@ -19,10 +19,15 @@ const sheets = google.sheets("v4");
 const App = require("./models/appModel");
 const app = express();
 
-const dataSource = express();
+const client = new OAuth2Client(
+  "475033388248-6sa0d0q32qh2mg9kuvk729tbe5lu22lq.apps.googleusercontent.com",
+  "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",
+  "http://localhost:3000"
+);
 
 // cores required for other domains to call our api urls
 const cors = require("cors");
+const { table } = require("console");
 
 // call to connect to our database
 connectDB();
@@ -52,36 +57,12 @@ const isAuth = (req, res, next) => {
   if (req.session.isAuth) {
     next();
   } else {
-    console.log("this is running?");
     res.status(404).send("YOU ARE NOT AUTHENTICATED");
   }
 };
 
-app.post("/addUser", async (req, res) => {
-  const { name, email } = req.body;
-  const existingUser = await User.findOne({ email });
-  req.session.isAuth = true;
-  if (!existingUser) {
-    const user = new User({
-      name: name,
-      email: email,
-      sessionid: req.session.id,
-    });
-    await user.save();
-    res.status(201).send({ message: "success" });
-  } else {
-    await User.findOneAndUpdate(
-      { email: email },
-      { sessionid: req.session.id },
-      { new: true }
-    );
-    res.status(201).send({ message: "already in db" });
-  }
-});
-
 app.get("/getUser", isAuth, async (req, res) => {
   const sessionid = req.session.id;
-  // console.log(sessionid);
   const userSessionid = await User.findOne({ sessionid });
   res.send(userSessionid.email);
 });
@@ -99,13 +80,13 @@ app.post("/logout", async (req, res) => {
 
 app.post("/addApp", async (req, res) => {
   const { name, creator, rolesheet, publish } = req.body;
-  const app = new App({
+  const createdapp = new App({
     name: name,
     creator: creator,
-    rolesheet: rolesheet,
+    roleSheet: rolesheet,
     published: publish === "yes" ? true : false,
   });
-  await app.save();
+  await createdapp.save();
   res.send("Added app");
 });
 
@@ -116,7 +97,7 @@ app.post("/getApps", async (req, res) => {
 });
 
 app.post("/getOneApp", async (req, res) => {
-  const appId = req.body.appId;
+  const appId = req.body.id;
   const app = await App.findOne({ _id: appId });
   res.send(app);
 });
@@ -135,13 +116,111 @@ app.post("/editApp", async (req, res) => {
   res.send("Edited app");
 });
 
+app.post("/addTableView", async (req, res) => {
+  const { name, datasource, columns } = req.body.data;
+  const { selectApp, appId } = req.body;
+  let selectedDS;
+  for (let ds of selectApp.dataSources) {
+    if (ds.name == datasource) {
+      selectedDS = ds;
+    }
+  }
+  let cols = [];
+
+  let letters = columns.split("/");
+
+  for (tableDS of selectedDS.columns) {
+    if (letters.includes(tableDS.colLetter)) {
+      cols.push(tableDS);
+    }
+  }
+
+  let tview = new View({
+    name: name,
+    columns: cols,
+    viewType: "table",
+  });
+
+  await tview.save();
+  const currApp = await App.findOne({ _id: appId });
+  let tableModal = TView({
+    view: tview,
+  });
+  await tableModal.save();
+
+  let tables = currApp.tViews;
+  tables.push(tableModal);
+  await App.findOneAndUpdate({ _id: appId }, { tViews: tables }, { new: true });
+  res.send(tableModal);
+});
+
+app.post("/getTableViews", async (req, res) => {
+  res.send("okie");
+});
+
+function getColumnLetter(columnNumber) {
+  let dividend = columnNumber;
+  let columnLetter = "";
+  let modulo;
+
+  while (dividend > 0) {
+    modulo = (dividend - 1) % 26;
+    columnLetter = String.fromCharCode(65 + modulo) + columnLetter;
+    dividend = Math.floor((dividend - modulo) / 26);
+  }
+
+  return columnLetter;
+}
 //-----------------------------
 app.post("/addDataSource", async (req, res) => {
-  const { appId, name, url, sheetIndex } = req.body;
+  const { appId, name, url } = req.body;
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const spreadsheetId = url.split("/")[5];
+  const gid = parseInt(url.split("gid=")[1]);
+
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let title = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      title = d.properties.title;
+    }
+  }
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A:Z`,
+    majorDimension: "COLUMNS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+
+  let list_column = [];
+
+  for (let i = 0; i < sheetdata.data.values.length; i++) {
+    console.log(sheetdata.data.values[i]);
+    let letter = getColumnLetter(i + 1);
+    let colprop = new Column({
+      colLetter: letter,
+      initialValue: "",
+      label: false,
+      reference: "",
+      type: "",
+      key: false,
+    });
+    await colprop.save();
+    list_column.push(colprop);
+  }
+
+  //--------------------------
   const dataSource = new DataSource({
     name: name,
     url: url,
-    sheetIndex: sheetIndex,
+    sheetIndex: gid,
+    columns: list_column,
+    key: false,
   });
   await dataSource.save();
   const app = await App.findOne({ _id: appId });
@@ -152,7 +231,7 @@ app.post("/addDataSource", async (req, res) => {
     dSources.push(dataSource);
     await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
   }
-  res.send("Added datasource");
+  res.send(dataSource);
 });
 
 app.post("/getDataSource", async (req, res) => {
@@ -168,71 +247,46 @@ app.post("/getDataSources", async (req, res) => {
   res.send(dsources);
 });
 
-//-------------
-async function authorize() {
-  const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
-  const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
+//------------better api auth code----------
+app.post("/logUser", async (req, res) => {
+  const auth_code = req.body.code;
+  const { tokens } = await client.getToken(auth_code);
+  const accessToken = tokens.access_token;
+  const refreshToken = tokens.refresh_token;
 
-  client = await authenticate({
-    scopes: SCOPES,
-    keyfilePath: CREDENTIALS_PATH,
+  const people = google.people({
+    version: "v1",
+    auth: client,
   });
-  return client;
-}
+  client.setCredentials({ access_token: accessToken });
+  let results = await people.people.get({
+    resourceName: "people/me",
+    personFields: "names,emailAddresses",
+  });
 
-app.post("/tableView", async (req, res) => {
-  const url = req.body.url;
-  const spreadsheetId = url.split("/")[5];
-  console.log("server.js(spreadsheetId) = ", spreadsheetId);
-  const range = "Sheet" + req.body.range;
-  console.log("server.js(range) = ", range);
+  let displayName = results.data.names[0].displayName;
+  let email = results.data.emailAddresses[0].value;
 
-  const authClient = await authorize();
-
-  const request = {
-    spreadsheetId: spreadsheetId,
-    range: range,
-    valueRenderOption: "FORMATTED_VALUE",
-    dateTimeRenderOption: "FORMATTED_STRING",
-    auth: authClient,
-  };
-
-  try {
-    const response = (await sheets.spreadsheets.values.get(request)).data;
-    // TODO: Change code below to process the `response` object:
-    console.log(JSON.stringify(response, null, 2));
-    res.send(response);
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-// example for showing how google sheet works
-app.post("/googlesheet", async (req, res) => {
-  const url = req.body.url;
-  const spreadsheetId = url.split("/")[5];
-  console.log("server.js(spreadsheetId) = ", spreadsheetId);
-  const range = "Sheet" + req.body.range;
-  console.log("server.js(range) = ", range);
-
-  const authClient = await authorize();
-
-  const request = {
-    spreadsheetId: spreadsheetId,
-    range: range,
-    valueRenderOption: "FORMATTED_VALUE",
-    dateTimeRenderOption: "FORMATTED_STRING",
-    auth: authClient,
-  };
-
-  try {
-    const response = (await sheets.spreadsheets.values.get(request)).data;
-    // TODO: Change code below to process the `response` object:
-    console.log(JSON.stringify(response, null, 2));
-
-    res.send(response);
-  } catch (err) {
-    console.error(err);
+  const existingUser = await User.findOne({ email });
+  req.session.isAuth = true;
+  if (!existingUser) {
+    const user = new User({
+      name: displayName,
+      email: email,
+      sessionid: req.session.id,
+      refreshToken: refreshToken,
+    });
+    await user.save();
+    client.setCredentials({ refresh_token: refreshToken });
+    res.status(201).send({ message: "success", name: displayName });
+  } else {
+    await User.findOneAndUpdate(
+      { email: email },
+      { sessionid: req.session.id },
+      { new: true }
+    );
+    client.setCredentials({ refresh_token: existingUser.refreshToken });
+    res.status(201).send({ message: "already in db", name: displayName });
   }
 });
 
