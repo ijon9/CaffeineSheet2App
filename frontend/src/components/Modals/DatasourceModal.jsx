@@ -47,6 +47,18 @@ function DatasourceModal({ open, closeDS, onSubmitds }) {
               />
             </label>
             <br />
+            <label>
+              Key (use letter columns):
+              <br />
+              <input
+                type="text"
+                name="key"
+                value={inputs.key || ""}
+                onChange={handleInputChange}
+              />
+            </label>
+            <br />
+
             <button type="submit">Submit</button>
           </form>
         </div>

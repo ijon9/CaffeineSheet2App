@@ -19,7 +19,7 @@ function App() {
         <Route path="/yourapps" element={<AppHome />} />
         <Route path="/addApp" element={<AddApp />} />
         <Route path="/app/:id" element={<AppDetail />} />
-        <Route path="/app/:id/:ds" element={<DSDetail />} />
+        <Route path="/app/:id/datasource/:ds" element={<DSDetail />} />
         <Route path="/app/:id/table/:tv" element={<TVDetail />} />
         <Route path="/tableView" element={<TableView />} />
       </Routes>

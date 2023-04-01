@@ -48,7 +48,8 @@ function AppDetail() {
         sheetIndex: formData.sheetIndex,
       })
       .then((response) => {
-        navigate(`/app/${id}/table/${response.data._id}`);
+        console.log(response.data);
+        navigate(`/app/${id}/datasource/${response.data._id}`);
         setDataSources((value) => [...value, response.data]);
       })
       .catch((error) => {
@@ -139,7 +140,7 @@ function AppDetail() {
           {dataSources.length > 0 ? (
             dataSources.map((ds) => (
               <div key={ds._id}>
-                <Link to={`/app/${id}/${ds._id}`}>{ds.name}</Link>
+                <Link to={`/app/${id}/datasource/${ds._id}`}>{ds.name}</Link>
               </div>
             ))
           ) : (
@@ -164,10 +165,8 @@ function AppDetail() {
         <div>
           {tableView.length > 0 ? (
             tableView.map((tv) => (
-              <div key={tv.view._id}>
-                <Link to={`/app/${id}/table/${tv.view._id}`}>
-                  {tv.view.name}
-                </Link>
+              <div key={tv._id}>
+                <Link to={`/app/${id}/table/${tv._id}`}>{tv.view.name}</Link>
               </div>
             ))
           ) : (
