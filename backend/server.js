@@ -235,7 +235,6 @@ app.post("/addDataSource", async (req, res) => {
 });
 
 app.post("/getDataSource", async (req, res) => {
-  console.log(req.body);
   const dataSourceID = req.body.dataSourceID;
   const dsource = await DataSource.findOne({ _id: dataSourceID });
   res.send(dsource);
