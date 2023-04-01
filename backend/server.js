@@ -241,6 +241,25 @@ app.post("/getDataSource", async (req, res) => {
   res.send(dsource);
 });
 
+app.post("/editDataSource", async (req, res) => {
+  const { appId, dsId, name, url } = req.body;
+  const app = await App.findOne({ _id : appId });
+  var dSources = app.dataSources;
+  for(var i=0; i<dSources.length; i++) {
+    if(dSources[i]._id.toString() === dsId) {
+      dSources[i].name = name;
+      dSources[i].url = url;
+    }
+  }
+  await App.findOneAndUpdate(
+    { _id: appId }, { dataSources : dSources }
+  );
+  await DataSource.findOneAndUpdate(
+    { _id: dsId }, { name: name, url: url}
+  );
+  res.send("Edited Data Source");
+});
+
 app.post("/getDataSources", async (req, res) => {
   const appId = req.body.appId;
   const app = await App.findOne({ _id: appId });
