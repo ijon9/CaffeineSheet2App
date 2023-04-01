@@ -27,16 +27,19 @@ function DSDetail() {
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
-    dataSource = value
     setDataSource({ ...dataSource, [name]: value });
   };
   
-  const colChange = (event) => {
+  const handleColChange = (event) => {
+    const thisCol = event.target.name[0];
+    var temp;
     for(var i=0; i<columns.length; i++) {
-      if(columns[i].colLetter === event.target.name[0]) {
-        columns[i].colLetter = "Z"
+      if(columns[i].colLetter === thisCol) {
+        columns[i].colLetter = "Z";
+        temp = columns[i];
       }
     }
+    console.log(temp);
   }
 
   const handleEdit = (event) => {
@@ -81,8 +84,7 @@ function DSDetail() {
         </tr>
         {columns.map((c) => (
         <tr>
-          {/* <td><input type="text" value={c.colLetter || ""} name={c.colLetter+"n"} onChange={colChange}/></td> */}
-          <td>{c.colLetter}</td>
+          <td><input type="text" value={c.colLetter || ""} name={c.colLetter+"N"} onChange={handleColChange}/></td>
           <td>{c.initialValue === "" ? "none" : c.initialValue}</td>
           <td>{c.label ? "true" : "false"}</td>
           <td>{c.reference === "" ? "false" : c.reference}</td>
