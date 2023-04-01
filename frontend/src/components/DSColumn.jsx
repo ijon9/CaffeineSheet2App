@@ -1,6 +1,6 @@
 import React from "react";
 
-function Record({ columns }) {
+function DSColumn({ columns }) {
   return (
     <div>
       <div>ColumnLetter initialValue label reference type key</div>
@@ -16,4 +16,4 @@ function Record({ columns }) {
   );
 }
 
-export default Record;
+export default DSColumn;

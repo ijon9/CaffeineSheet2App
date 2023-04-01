@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Record from "./Record";
+import DSColumn from "./DSColumn";
 
 function DSDetail() {
   let { id, ds } = useParams();
@@ -25,7 +25,7 @@ function DSDetail() {
     <div>
       <div>DSDetail {name}</div>
       <button onClick={goBack}>back</button>
-      <Record columns={columns}></Record>
+      <DSColumn columns={columns}></DSColumn>
     </div>
   );
 }
