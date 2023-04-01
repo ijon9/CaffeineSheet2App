@@ -103,13 +103,13 @@ app.post("/getOneApp", async (req, res) => {
 });
 
 app.post("/editApp", async (req, res) => {
-  const { appId, name, creator, rolesheet, publish } = req.body;
+  const { appId, name, creator, roleSheet, publish } = req.body;
   await App.findOneAndUpdate(
     { _id: appId },
     {
       name: name,
       creator: creator,
-      roleSheet: rolesheet,
+      roleSheet: roleSheet,
       published: publish === "yes" ? true : false,
     }
   );
