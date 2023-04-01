@@ -27,8 +27,17 @@ function DSDetail() {
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
+    dataSource = value
     setDataSource({ ...dataSource, [name]: value });
   };
+  
+  const colChange = (event) => {
+    for(var i=0; i<columns.length; i++) {
+      if(columns[i].colLetter === event.target.name[0]) {
+        columns[i].colLetter = "Z"
+      }
+    }
+  }
 
   const handleEdit = (event) => {
     event.preventDefault();
@@ -60,10 +69,34 @@ function DSDetail() {
           name="url"
           onChange={handleChange}
         />
-        <br />
-        <button type="submit">save edit</button>
+        <br /><br/>
+        <table border="2px">
+        <tr>
+          <th>ColumnLetter</th>
+          <th>initialValue</th>
+          <th>label</th>
+          <th>reference</th>
+          <th>type</th>
+          <th>key</th>
+        </tr>
+        {columns.map((c) => (
+        <tr>
+          {/* <td><input type="text" value={c.colLetter || ""} name={c.colLetter+"n"} onChange={colChange}/></td> */}
+          <td>{c.colLetter}</td>
+          <td>{c.initialValue === "" ? "none" : c.initialValue}</td>
+          <td>{c.label ? "true" : "false"}</td>
+          <td>{c.reference === "" ? "false" : c.reference}</td>
+          <td>{c.type === "" ? "no type" : c.type}</td>
+          <td>{c.key ? "true" : "false"}</td>
+        </tr>
+      ))}
+      </table>
+      <br/>
+      <button type="submit">save edit</button>
       </form>
-      <DSColumn columns={columns}></DSColumn>
+      <br/>
+      {/* <DSColumn columns={columns}></DSColumn> */}
+      
     </div>
   );
 }
