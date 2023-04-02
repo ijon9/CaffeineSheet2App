@@ -249,6 +249,7 @@ app.post("/editDataSource", async (req, res) => {
     if (dSources[i]._id.toString() === dsId) {
       dSources[i].name = name;
       dSources[i].url = url;
+      dSources[i].columns = cols;
     }
   }
   await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });

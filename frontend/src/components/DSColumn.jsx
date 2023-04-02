@@ -3,15 +3,26 @@ import React from "react";
 function DSColumn({ columns }) {
   return (
     <div>
-      <div>ColumnLetter initialValue label reference type key</div>
-      {columns.map((c) => (
-        <div>
-          {c.colLetter} {c.initialValue == "" ? "none" : c.initialValue}{" "}
-          {c.label ? "true" : "false"}{" "}
-          {c.reference == "" ? "false" : c.reference}{" "}
-          {c.type == "" ? "no type" : c.type} {c.key ? "true" : "false"}
-        </div>
+      <table border="2px">
+        <tr>
+          <th>ColumnLetter</th>
+          <th>initialValue</th>
+          <th>label</th>
+          <th>reference</th>
+          <th>type</th>
+          <th>key</th>
+        </tr>
+        {columns.map((c) => (
+        <tr>
+          <td>{c.colLetter}</td>
+          <td>{c.initialValue === "" ? "none" : c.initialValue}</td>
+          <td>{c.label ? "true" : "false"}</td>
+          <td>{c.reference === "" ? "false" : c.reference}</td>
+          <td>{c.type === "" ? "no type" : c.type}</td>
+          <td>{c.key ? "true" : "false"}</td>
+        </tr>
       ))}
+      </table>
     </div>
   );
 }
