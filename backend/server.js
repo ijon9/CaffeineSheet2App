@@ -19,6 +19,9 @@ const sheets = google.sheets("v4");
 const App = require("./models/appModel");
 const app = express();
 
+const globalDeveloper =
+  "https://docs.google.com/spreadsheets/d/1Wfsl5JEiRIpQRgevsqfSgCAATdXHZ1lb2cV88Q3WqXE/edit#gid=0";
+
 const client = new OAuth2Client(
   "475033388248-6sa0d0q32qh2mg9kuvk729tbe5lu22lq.apps.googleusercontent.com",
   "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",
@@ -64,7 +67,54 @@ const isAuth = (req, res, next) => {
 app.get("/getUser", isAuth, async (req, res) => {
   const sessionid = req.session.id;
   const userSessionid = await User.findOne({ sessionid });
-  res.send(userSessionid.email);
+
+  //---------
+
+  const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+  if (userSessionid.email == s2aOwnerEmail) {
+    res.send({ email: userSessionid.email, isDev: true });
+  } else {
+    const currentToken = await client.getAccessToken();
+    const currentUserToken = currentToken.res.data.refresh_token;
+
+    const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+    const ownerToken = s2aOwnerUser.refreshToken;
+    client.setCredentials({ refresh_token: ownerToken });
+
+    const sheets = google.sheets({ version: "v4", auth: client });
+    const spreadsheetId = globalDeveloper.split("/")[5];
+    const gid = parseInt(globalDeveloper.split("gid=")[1]);
+    const { data } = await sheets.spreadsheets.get({
+      spreadsheetId,
+      includeGridData: true,
+    });
+
+    let title = "";
+    for (let d of data.sheets) {
+      if (d.properties.sheetId == gid) {
+        title = d.properties.title;
+      }
+    }
+
+    const sheetdata = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `'${title}'!A:Z`,
+      majorDimension: "COLUMNS",
+      valueRenderOption: "FORMATTED_VALUE",
+    });
+    let isDev = false;
+    const developers = sheetdata.data.values[0];
+    for (let i = 1; i < developers.length; i++) {
+      if (userSessionid.email == developers[i]) {
+        isDev = true;
+      }
+    }
+
+    client.setCredentials({ refresh_token: currentUserToken });
+    //-----------
+
+    res.send({ email: userSessionid.email, isDev: isDev });
+  }
 });
 
 app.post("/logout", async (req, res) => {
@@ -270,7 +320,6 @@ app.post("/getDisplayColumns", async (req, res) => {
 
   const currview = await TView.findOne({ _id: tableView });
   dsurl = currview.view.dsurl;
-  console.log(dsurl);
   const spreadsheetId = dsurl.split("/")[5];
   const gid = parseInt(dsurl.split("gid=")[1]);
 
@@ -294,6 +343,54 @@ app.post("/getDisplayColumns", async (req, res) => {
   });
 
   res.send(sheetdata.data.values);
+});
+
+app.post("/isGlobalDeveloper", async (req, res) => {
+  const { email } = req.body;
+  const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+  if (email == s2aOwnerEmail) {
+    res.send(true);
+  } else {
+    const currentToken = await client.getAccessToken();
+    const currentUserToken = currentToken.res.data.refresh_token;
+
+    const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+    const ownerToken = s2aOwnerUser.refreshToken;
+    client.setCredentials({ refresh_token: ownerToken });
+
+    const sheets = google.sheets({ version: "v4", auth: client });
+    const spreadsheetId = globalDeveloper.split("/")[5];
+    const gid = parseInt(globalDeveloper.split("gid=")[1]);
+    const { data } = await sheets.spreadsheets.get({
+      spreadsheetId,
+      includeGridData: true,
+    });
+
+    let title = "";
+    for (let d of data.sheets) {
+      if (d.properties.sheetId == gid) {
+        title = d.properties.title;
+      }
+    }
+
+    const sheetdata = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `'${title}'!A:Z`,
+      majorDimension: "COLUMNS",
+      valueRenderOption: "FORMATTED_VALUE",
+    });
+    let isDev = false;
+    const developers = sheetdata.data.values[0];
+    for (let i = 1; i < developers.length; i++) {
+      if (email == developers[i]) {
+        isDev = true;
+      }
+    }
+
+    client.setCredentials({ refresh_token: currentUserToken });
+
+    res.send(isDev);
+  }
 });
 
 //------------better api auth code----------

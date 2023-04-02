@@ -12,7 +12,7 @@ function AppHome(props) {
     axios
       .get("http://localhost:4000/getUser")
       .then((response) => {
-        setUser(response.data);
+        setUser(response.data.email);
       })
       .catch((error) => {
         console.log(error);
