@@ -259,6 +259,7 @@ app.post("/addDataSource", async (req, res) => {
     let letter = getColumnLetter(i + 1);
     let colprop = new Column({
       colLetter: letter,
+      name: "",
       initialValue: "",
       label: false,
       reference: "",

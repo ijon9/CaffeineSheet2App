@@ -38,6 +38,8 @@ function DSDetail() {
       if(colCopy[i]._id === colId) {
         // colLetter
         if(field === 'C') colCopy[i].colLetter = event.target.value;
+        // name
+        if(field === "N") colCopy[i].name = event.target.value;
         // initialValue
         if(field === 'I') colCopy[i].initialValue = event.target.value;
         // label
@@ -92,6 +94,7 @@ function DSDetail() {
         <table border="2px">
         <tr>
           <th>ColumnLetter</th>
+          <th>Name</th>
           <th>initialValue</th>
           <th>label</th>
           <th>reference</th>
@@ -101,6 +104,7 @@ function DSDetail() {
         {columns.map((c) => (
         <tr>
           <td><input type="text" value={c.colLetter || ""} name={c._id+"C"} onChange={handleColChange}/></td>
+          <td><input type="text" value={c.name || ""} name={c._id+"N"} onChange={handleColChange}/></td>
           <td>{<input type="text" value={c.initialValue || "none"} name={c._id+"I"} onChange={handleColChange}/>}</td>
           <td><div onChange={handleColChange}>{c.label 
             ? (<><input type="radio" value="yes" name={c._id+"L"} defaultChecked />Yes<input type="radio" value="no" name={c._id+"L"}/>No</>)
