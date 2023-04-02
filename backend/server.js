@@ -296,7 +296,7 @@ app.post("/getDataSource", async (req, res) => {
 });
 
 app.post("/editDataSource", async (req, res) => {
-  const { appId, dsId, name, url } = req.body;
+  const { appId, dsId, name, url, cols } = req.body;
   const app = await App.findOne({ _id: appId });
   var dSources = app.dataSources;
   for (var i = 0; i < dSources.length; i++) {
@@ -307,7 +307,19 @@ app.post("/editDataSource", async (req, res) => {
     }
   }
   await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
-  await DataSource.findOneAndUpdate({ _id: dsId }, { name: name, url: url });
+  await DataSource.findOneAndUpdate({ _id: dsId }, { name: name, url: url, columns: cols });
+  for(var i=0; i<cols.length; i++) {
+    await Column.findOneAndUpdate(
+      { _id: cols[i]._id },
+      {
+        colLetter : cols[i].colLetter,
+        initialValue : cols[i].initialValue,
+        label : cols[i].label,
+        reference : cols[i].reference,
+        type : cols[i].type
+      }
+    )
+  }
   res.send("Edited Data Source");
 });
 
