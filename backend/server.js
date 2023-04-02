@@ -139,6 +139,7 @@ app.post("/addTableView", async (req, res) => {
     name: name,
     columns: cols,
     viewType: "table",
+    dsurl: selectedDS.url,
   });
 
   await tview.save();
@@ -242,20 +243,16 @@ app.post("/getDataSource", async (req, res) => {
 
 app.post("/editDataSource", async (req, res) => {
   const { appId, dsId, name, url } = req.body;
-  const app = await App.findOne({ _id : appId });
+  const app = await App.findOne({ _id: appId });
   var dSources = app.dataSources;
-  for(var i=0; i<dSources.length; i++) {
-    if(dSources[i]._id.toString() === dsId) {
+  for (var i = 0; i < dSources.length; i++) {
+    if (dSources[i]._id.toString() === dsId) {
       dSources[i].name = name;
       dSources[i].url = url;
     }
   }
-  await App.findOneAndUpdate(
-    { _id: appId }, { dataSources : dSources }
-  );
-  await DataSource.findOneAndUpdate(
-    { _id: dsId }, { name: name, url: url}
-  );
+  await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
+  await DataSource.findOneAndUpdate({ _id: dsId }, { name: name, url: url });
   res.send("Edited Data Source");
 });
 
@@ -264,6 +261,38 @@ app.post("/getDataSources", async (req, res) => {
   const app = await App.findOne({ _id: appId });
   const dsources = app.dataSources;
   res.send(dsources);
+});
+
+app.post("/getDisplayColumns", async (req, res) => {
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const { appId, tableView } = req.body;
+
+  const currview = await TView.findOne({ _id: tableView });
+  dsurl = currview.view.dsurl;
+  console.log(dsurl);
+  const spreadsheetId = dsurl.split("/")[5];
+  const gid = parseInt(dsurl.split("gid=")[1]);
+
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let title = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      title = d.properties.title;
+    }
+  }
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A:Z`,
+    majorDimension: "ROWS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+
+  res.send(sheetdata.data.values);
 });
 
 //------------better api auth code----------
