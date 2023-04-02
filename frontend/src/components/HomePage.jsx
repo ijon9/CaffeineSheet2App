@@ -9,7 +9,7 @@ function HomePage() {
   useEffect(() => {
     async function getuser() {
       axios
-        .get("http://localhost:4000/getUser")
+        .get("http://localhost:4000/getUserAndDevType")
         .then((response) => {
           setDeveloper(response.data.isDev);
           setUser(response.data.email);

@@ -67,6 +67,12 @@ const isAuth = (req, res, next) => {
 app.get("/getUser", isAuth, async (req, res) => {
   const sessionid = req.session.id;
   const userSessionid = await User.findOne({ sessionid });
+  res.send({ email: userSessionid.email });
+});
+
+app.get("/getUserAndDevType", isAuth, async (req, res) => {
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
 
   //---------
 
@@ -104,10 +110,8 @@ app.get("/getUser", isAuth, async (req, res) => {
     });
     let isDev = false;
     const developers = sheetdata.data.values[0];
-    for (let i = 1; i < developers.length; i++) {
-      if (userSessionid.email == developers[i]) {
-        isDev = true;
-      }
+    if (developers.includes(userSessionid.email)) {
+      isDev = true;
     }
 
     client.setCredentials({ refresh_token: currentUserToken });
