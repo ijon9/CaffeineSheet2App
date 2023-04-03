@@ -215,32 +215,6 @@ app.post("/getTableView", async (req, res) => {
   res.send(tView);
 });
 
-// const { appId, dsId, name, url, cols } = req.body;
-//   const app = await App.findOne({ _id: appId });
-//   var dSources = app.dataSources;
-//   for (var i = 0; i < dSources.length; i++) {
-//     if (dSources[i]._id.toString() === dsId) {
-//       dSources[i].name = name;
-//       dSources[i].url = url;
-//       dSources[i].columns = cols;
-//     }
-//   }
-//   await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
-//   await DataSource.findOneAndUpdate({ _id: dsId }, { name: name, url: url, columns: cols });
-//   for(var i=0; i<cols.length; i++) {
-//     await Column.findOneAndUpdate(
-//       { _id: cols[i]._id },
-//       {
-//         colLetter : cols[i].colLetter,
-//         initialValue : cols[i].initialValue,
-//         label : cols[i].label,
-//         reference : cols[i].reference,
-//         type : cols[i].type
-//       }
-//     )
-//   }
-//   res.send("Edited Data Source");
-
 app.post("/editTableView", async (req, res) => {
   const { appId, tView, roles } = req.body;
   const app = await App.findOne({ _id: appId });
