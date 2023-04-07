@@ -219,16 +219,15 @@ app.post("/editTableView", async (req, res) => {
   const { appId, tView, roles } = req.body;
   const app = await App.findOne({ _id: appId });
   var tViews = app.tViews;
-  for(var i=0; i<tViews.length; i++) {
-    if(tViews[i]._id.toString() === tView._id.toString()) {
+  for (var i = 0; i < tViews.length; i++) {
+    if (tViews[i]._id.toString() === tView._id.toString()) {
       tViews[i].view = tView.view;
     }
   }
-  await App.findOneAndUpdate({ _id: appId }, { tViews : tViews });
-  await TView.findOneAndUpdate({ _id: tView._id }, { view : tView.view });
+  await App.findOneAndUpdate({ _id: appId }, { tViews: tViews });
+  await TView.findOneAndUpdate({ _id: tView._id }, { view: tView.view });
   res.send("Edited Table View");
 });
-
 
 app.post("/getTableViews", async (req, res) => {
   res.send("okie");
@@ -329,18 +328,21 @@ app.post("/editDataSource", async (req, res) => {
     }
   }
   await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
-  await DataSource.findOneAndUpdate({ _id: dsId }, { name: name, url: url, columns: cols });
-  for(var i=0; i<cols.length; i++) {
+  await DataSource.findOneAndUpdate(
+    { _id: dsId },
+    { name: name, url: url, columns: cols }
+  );
+  for (var i = 0; i < cols.length; i++) {
     await Column.findOneAndUpdate(
       { _id: cols[i]._id },
       {
-        colLetter : cols[i].colLetter,
-        initialValue : cols[i].initialValue,
-        label : cols[i].label,
-        reference : cols[i].reference,
-        type : cols[i].type
+        colLetter: cols[i].colLetter,
+        initialValue: cols[i].initialValue,
+        label: cols[i].label,
+        reference: cols[i].reference,
+        type: cols[i].type,
       }
-    )
+    );
   }
   res.send("Edited Data Source");
 });
@@ -381,6 +383,42 @@ app.post("/getDisplayColumns", async (req, res) => {
   });
 
   res.send(sheetdata.data.values);
+});
+
+app.post("/addRecord", async (req, res) => {
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const { appId, tableView, newRow } = req.body;
+
+  const currview = await TView.findOne({ _id: tableView });
+  const spreadsheetId = currview.view.dsurl.split("/")[5];
+  const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
+
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let sheetTitle = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      sheetTitle = d.properties.title;
+    }
+  }
+
+  try {
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: `${sheetTitle}!A1`,
+      valueInputOption: "RAW",
+      insertDataOption: "INSERT_ROWS",
+      resource: {
+        values: [newRow],
+      },
+    });
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send("Error adding record");
+  }
 });
 
 app.post("/isGlobalDeveloper", async (req, res) => {
