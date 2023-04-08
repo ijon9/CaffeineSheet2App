@@ -10,6 +10,7 @@ function TVDetail() {
   const [records, setRecords] = useState([]);
   const [tView, setTView] = useState({});
   const [roles, setRoles] = useState("");
+  const [columns, setColumns] = useState("");
   const [tViewSet, setTViewSet] = useState(false);
   const [RecordModalOpen, setRecordModalOpen] = useState(false);
 
@@ -28,10 +29,18 @@ function TVDetail() {
         const tViewRoles = response.data.view.roles;
         for (var i = 0; i < tViewRoles.length; i++) {
           str = str.concat(tViewRoles[i]);
-          str = str.concat(",");
+          str = str.concat("/");
         }
         str = str.slice(0, str.length - 1);
         setRoles(str);
+        str = "";
+        const tViewCols = response.data.view.columns;
+        for(var i=0; i<tViewCols.length; i++) {
+          str = str.concat(tViewCols[i].colLetter);
+          str = str.concat("/");
+        }
+        str = str.slice(0, str.length - 1);
+        setColumns(str);
         setTViewSet(true);
       });
 
@@ -63,6 +72,8 @@ function TVDetail() {
       tViewCopy.view.allowedActions[2] = !tViewCopy.view.allowedActions[2];
     } else if (name === "roles") {
       setRoles(value);
+    } else if(name === "columns") {
+      setColumns(value);
     }
     setTView(tViewCopy);
     // setDataSource({ ...dataSource, [name]: value });
@@ -90,6 +101,7 @@ function TVDetail() {
       appId: id,
       tView: tView,
       roles: roles,
+      columns: columns
     });
   };
 
@@ -191,6 +203,14 @@ function TVDetail() {
           type="text"
           value={roles || ""}
           name="roles"
+          onChange={handleChange}
+        />
+        <br />
+        Columns (Separated by /) :{" "}
+        <input
+          type="text"
+          value={columns || ""}
+          name="columns"
           onChange={handleChange}
         />
         <br />
