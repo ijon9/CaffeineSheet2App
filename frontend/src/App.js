@@ -9,6 +9,7 @@ import Home from "./components/HomePage";
 import AppDetail from "./components/AppDetail";
 import DSDetail from "./components/DSDetail";
 import TVDetail from "./components/TVDetail";
+import PublishedApp from "./components/EndUsers/PublishedApp";
 function App() {
   return (
     <BrowserRouter>
@@ -22,6 +23,7 @@ function App() {
         <Route path="/app/:id/datasource/:ds" element={<DSDetail />} />
         <Route path="/app/:id/table/:tv" element={<TVDetail />} />
         <Route path="/tableView" element={<TableView />} />
+        <Route path="/user/:userid" element={<PublishedApp />} />
       </Routes>
     </BrowserRouter>
   );

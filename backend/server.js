@@ -117,7 +117,11 @@ app.get("/getUserAndDevType", isAuth, async (req, res) => {
     client.setCredentials({ refresh_token: currentUserToken });
     //-----------
 
-    res.send({ email: userSessionid.email, isDev: isDev });
+    res.send({
+      email: userSessionid.email,
+      isDev: isDev,
+      userid: userSessionid._id,
+    });
   }
 });
 
@@ -148,6 +152,19 @@ app.post("/getApps", async (req, res) => {
   const email = req.body.email;
   const apps = await App.find({ creator: email });
   res.send(apps);
+});
+
+app.get("/getPublishedApp", async (req, res) => {
+  let published_app = [];
+  const get_app = await App.find({});
+
+  for (let apps of get_app) {
+    if (apps.published) {
+      published_app.push(apps);
+    }
+  }
+
+  res.send(published_app);
 });
 
 app.post("/getOneApp", async (req, res) => {
