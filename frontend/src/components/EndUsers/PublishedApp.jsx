@@ -6,6 +6,7 @@ function PublishedApp() {
   let { userid } = useParams();
   const [apps, setApps] = useState([]);
 
+  // gets all the apps
   useEffect(() => {
     axios.get("http://localhost:4000/getPublishedApp").then((response) => {
       setApps(response.data);
