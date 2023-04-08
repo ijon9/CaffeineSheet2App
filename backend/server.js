@@ -183,9 +183,9 @@ app.post("/addTableView", async (req, res) => {
 
   let letters = columns.split("/");
 
-  for (tableDS of selectedDS.columns) {
-    if (letters.includes(tableDS.colLetter)) {
-      cols.push(tableDS);
+  for (let col of selectedDS.columns) {
+    if (letters.includes(col.colLetter)) {
+      cols.push(col);
     }
   }
 
@@ -216,8 +216,23 @@ app.post("/getTableView", async (req, res) => {
 });
 
 app.post("/editTableView", async (req, res) => {
-  const { appId, tView, roles } = req.body;
+  const { appId, tView, roles, columns } = req.body;
   const app = await App.findOne({ _id: appId });
+  tView.view.roles = roles.split('/');
+  let selectedDS;
+  for (let ds of app.dataSources) {
+    if (ds.url === tView.view.dsurl) {
+      selectedDS = ds;
+    }
+  }
+  var letters = columns.split("/");
+  var cols = []
+  for (let col of selectedDS.columns) {
+    if (letters.includes(col.colLetter)) {
+      cols.push(col);
+    }
+  }
+  tView.view.columns = cols;
   var tViews = app.tViews;
   for (var i = 0; i < tViews.length; i++) {
     if (tViews[i]._id.toString() === tView._id.toString()) {
