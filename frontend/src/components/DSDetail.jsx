@@ -52,6 +52,10 @@ function DSDetail() {
         if(field === 'T') {
           colCopy[i].type = event.target.value;
         }
+        // key
+        if(field === "K") {
+          colCopy[i].key = !colCopy[i].key;
+        }
       }
     }
     setColumns(colCopy);
@@ -112,7 +116,9 @@ function DSDetail() {
           </div></td>
           <td>{<input type="text" value={c.reference || "false"} name={c._id+"R"} onChange={handleColChange}/>}</td>
           <td>{<input type="text" value={c.type || "no type"} name={c._id+"T"} onChange={handleColChange}/>}</td>
-          <td>{c.key ? "true" : "false"}</td>
+          <td>{c.key ? <input type="checkbox" value="key" onChange={handleColChange} name={c._id+"K"} defaultChecked/>
+              : <input type="checkbox" value="key" onChange={handleColChange} name={c._id+"K"}/>}</td>
+          
         </tr>
       ))}
       </table>
