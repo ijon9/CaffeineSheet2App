@@ -188,7 +188,8 @@ app.post("/editApp", async (req, res) => {
 });
 
 app.post("/addTableView", async (req, res) => {
-  const { name, datasource, columns } = req.body.data;
+  const { name, datasource, columns, filter, user_filter, add, edit } = req.body.data;
+  const del = req.body.data.delete;
   const { selectApp, appId } = req.body;
   let selectedDS;
   for (let ds of selectApp.dataSources) {
@@ -206,17 +207,42 @@ app.post("/addTableView", async (req, res) => {
     }
   }
 
+  let fil = new Column({
+    colLetter : filter,
+    name : "",
+    initialValue: "",
+    label: false,
+    reference: "",
+    type: "Boolean",
+    key: false
+  });
+  let userFil = new Column({
+    colLetter : user_filter,
+    name : "",
+    initialValue: "",
+    label: false,
+    reference: "",
+    type: "String",
+    key: false
+  })
+  var allowed = [false, false, false];
+  allowed[0] = add;
+  allowed[1] = edit;
+  allowed[2] = del;
   let tview = new View({
     name: name,
     columns: cols,
     viewType: "table",
     dsurl: selectedDS.url,
+    allowedActions: allowed
   });
 
   await tview.save();
   const currApp = await App.findOne({ _id: appId });
   let tableModal = TView({
     view: tview,
+    filter: fil,
+    userFilter : userFil
   });
   await tableModal.save();
 
@@ -257,7 +283,10 @@ app.post("/editTableView", async (req, res) => {
     }
   }
   await App.findOneAndUpdate({ _id: appId }, { tViews: tViews });
-  await TView.findOneAndUpdate({ _id: tView._id }, { view: tView.view });
+  await TView.findOneAndUpdate({ _id: tView._id }, 
+    { view: tView.view, 
+      filter : tView.filter, 
+      userFilter : tView.userFilter });
   res.send("Edited Table View");
 });
 
@@ -280,7 +309,7 @@ function getColumnLetter(columnNumber) {
 }
 //-----------------------------
 app.post("/addDataSource", async (req, res) => {
-  const { appId, name, url } = req.body;
+  const { appId, name, url, key } = req.body;
   const sheets = google.sheets({ version: "v4", auth: client });
   const spreadsheetId = url.split("/")[5];
   const gid = parseInt(url.split("gid=")[1]);
@@ -316,7 +345,7 @@ app.post("/addDataSource", async (req, res) => {
       label: false,
       reference: "",
       type: "",
-      key: false,
+      key: letter === key ? true : false,
     });
     await colprop.save();
     list_column.push(colprop);

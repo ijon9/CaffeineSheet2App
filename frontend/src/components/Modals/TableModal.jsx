@@ -19,7 +19,22 @@ function TableModal({ open, closetv, onSubmittv }) {
   };
 
   const handleCheck = (event) => {
-    console.log(event.target.value);
+    const name = event.target.name;
+    if(name === "add") {
+      const curr = inputs.add;
+      if(curr === undefined) { setInputs((values) => ({ ...values, [name] : true })) }
+      else { setInputs((values) => ({ ...values, [name] : !curr })) }
+    }
+    if(name === "edit") {
+      const curr = inputs.edit;
+      if(curr === undefined) { setInputs((values) => ({ ...values, [name] : true })) }
+      else { setInputs((values) => ({ ...values, [name] : !curr })) }
+    }
+    if(name === "delete") {
+      const curr = inputs.delete;
+      if(curr === undefined) { setInputs((values) => ({ ...values, [name] : true })) }
+      else { setInputs((values) => ({ ...values, [name] : !curr })) }
+    }
   };
 
   if (!open) {
@@ -65,7 +80,7 @@ function TableModal({ open, closetv, onSubmittv }) {
             </label>
             <br />
             <label>
-              Filter:
+              Filter (Enter Column Letter):
               <br />
               <input
                 type="text"
@@ -76,7 +91,7 @@ function TableModal({ open, closetv, onSubmittv }) {
             </label>
             <br />
             <label>
-              user_filter:
+              user_filter (Enter Column Letter) : 
               <br />
               <input
                 type="text"

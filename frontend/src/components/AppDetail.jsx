@@ -45,6 +45,7 @@ function AppDetail() {
         appId: id,
         name: formData.name,
         url: formData.url,
+        key: formData.key,
         sheetIndex: formData.sheetIndex,
       })
       .then((response) => {

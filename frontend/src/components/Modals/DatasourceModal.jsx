@@ -2,7 +2,7 @@ import React from "react";
 import "../../style/dsmodal.css";
 import { useState } from "react";
 function DatasourceModal({ open, closeDS, onSubmitds }) {
-  const clearState = { name: "", url: "" };
+  const clearState = { name: "", url: "" , key: ""};
   const [inputs, setInputs] = useState({ clearState });
 
   const handleInputChange = (event) => {
@@ -48,7 +48,7 @@ function DatasourceModal({ open, closeDS, onSubmitds }) {
             </label>
             <br />
             <label>
-              Key (use letter columns):
+              Key (use column letter):
               <br />
               <input
                 type="text"

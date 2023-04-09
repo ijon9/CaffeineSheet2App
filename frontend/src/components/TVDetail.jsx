@@ -74,6 +74,10 @@ function TVDetail() {
       setRoles(value);
     } else if(name === "columns") {
       setColumns(value);
+    } else if(name === "filter") {
+      tViewCopy.filter.colLetter = value;
+    } else if(name === "userfilter") {
+      tViewCopy.userFilter.colLetter = value;
     }
     setTView(tViewCopy);
     // setDataSource({ ...dataSource, [name]: value });
@@ -211,6 +215,22 @@ function TVDetail() {
           type="text"
           value={columns || ""}
           name="columns"
+          onChange={handleChange}
+        />
+        <br />
+        Filter Column (Enter Column Letter) :{" "}
+        <input
+          type="text"
+          value={tView.filter.colLetter || ""}
+          name="filter"
+          onChange={handleChange}
+        />
+        <br />
+        User Filter Column (Enter Column Letter) :{" "}
+        <input
+          type="text"
+          value={tView.userFilter.colLetter || ""}
+          name="userfilter"
           onChange={handleChange}
         />
         <br />
