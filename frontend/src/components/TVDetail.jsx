@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Record from "./Record";
 import RecordModal from "./Modals/RecordModal";
+import DeleteRecordModal from "./Modals/DeleteRecordModal";
 import axios from "axios";
 
 function TVDetail() {
@@ -13,6 +14,8 @@ function TVDetail() {
   const [columns, setColumns] = useState("");
   const [tViewSet, setTViewSet] = useState(false);
   const [RecordModalOpen, setRecordModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState(null);
 
   let goBack = () => {
     navigate(`/app/${id}`);
@@ -98,6 +101,28 @@ function TVDetail() {
       console.log(error);
     }
   };
+
+  const handleDeleteRecord = async (recordIndex) => {
+    console.log("recordIndex:", recordIndex);
+    try {
+      const response = await axios.post("http://localhost:4000/deleteRecord", {
+        appId: id,
+        tableView: tv,
+        rowIndex: recordIndex,
+        title: tView.view.dsurl.split("/")[5],
+      });
+      if (response.data) {
+        setRecords((prevRecords) =>
+          prevRecords.filter((_, index) => index !== recordIndex)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setDeleteModalOpen(false);
+  };
+
+
 
   const handleEdit = (event) => {
     event.preventDefault();
@@ -236,7 +261,13 @@ function TVDetail() {
         <br />
         <button type="submit">save edit</button>
       </form>
-      <Record records={records}></Record>
+      <Record
+        records={records}
+        onDelete={(index) => {
+          setRecordToDelete(index);
+          setDeleteModalOpen(true);
+        }}
+      />
       <button onClick={() => setRecordModalOpen(true)}>Add Record</button>
       <RecordModal
         open={RecordModalOpen}
@@ -244,6 +275,13 @@ function TVDetail() {
         onSubmit={handleAddRecord}
         records={records}
       />
+      <DeleteRecordModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleDeleteRecord}
+        recordIndex={recordToDelete}
+      />
+
     </div>
   ) : null;
 }
