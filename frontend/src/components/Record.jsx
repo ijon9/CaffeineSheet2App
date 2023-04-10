@@ -1,6 +1,6 @@
 import React from "react";
 
-function Record({ records }) {
+function Record({ records, onDelete }) {
   return (
     <div>
       <table>
@@ -10,6 +10,11 @@ function Record({ records }) {
               {row.map((cell, index) => (
                 <td key={index}>{cell}</td>
               ))}
+              {index !== 0 && (
+                <td>
+                  <button onClick={() => onDelete(index)}>Delete</button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

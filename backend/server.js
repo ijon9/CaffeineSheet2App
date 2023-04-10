@@ -483,6 +483,58 @@ app.post("/addRecord", async (req, res) => {
   }
 });
 
+app.post("/deleteRecord", async (req, res) => {
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const { appId, tableView, rowIndex } = req.body;
+
+  const currview = await TView.findOne({ _id: tableView });
+
+  if (!currview) {
+    res.status(400).send("currview not found");
+    return;
+  }
+
+  const spreadsheetId = currview.view.dsurl.split("/")[5];
+  const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
+
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let sheetTitle = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      sheetTitle = d.properties.title;
+    }
+  }
+  console.log("SheetId: " ,gid);
+  console.log("RowIndex: " + rowIndex);
+
+  try {
+    const response = await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      resource: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId: gid,
+                dimension: "ROWS",
+                startIndex: rowIndex,
+                endIndex: rowIndex + 1,
+              },
+            },
+          },
+        ],
+      },
+    });
+    res.send(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.post("/isGlobalDeveloper", async (req, res) => {
   const { email } = req.body;
   const s2aOwnerEmail = "teamcaffeine03@gmail.com";
