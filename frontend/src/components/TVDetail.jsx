@@ -36,7 +36,7 @@ function TVDetail() {
         str = "";
         const tViewCols = response.data.view.columns;
         for(var i=0; i<tViewCols.length; i++) {
-          str = str.concat(tViewCols[i].colLetter);
+          str = str.concat(tViewCols[i].name);
           str = str.concat("/");
         }
         str = str.slice(0, str.length - 1);
@@ -75,9 +75,9 @@ function TVDetail() {
     } else if(name === "columns") {
       setColumns(value);
     } else if(name === "filter") {
-      tViewCopy.filter.colLetter = value;
+      tViewCopy.filter.name = value;
     } else if(name === "userfilter") {
-      tViewCopy.userFilter.colLetter = value;
+      tViewCopy.userFilter.name = value;
     }
     setTView(tViewCopy);
     // setDataSource({ ...dataSource, [name]: value });
@@ -218,18 +218,18 @@ function TVDetail() {
           onChange={handleChange}
         />
         <br />
-        Filter Column (Enter Column Letter) :{" "}
+        Filter Column (Enter Column Name) :{" "}
         <input
           type="text"
-          value={tView.filter.colLetter || ""}
+          value={tView.filter.name || ""}
           name="filter"
           onChange={handleChange}
         />
         <br />
-        User Filter Column (Enter Column Letter) :{" "}
+        User Filter Column (Enter Column Name) :{" "}
         <input
           type="text"
-          value={tView.userFilter.colLetter || ""}
+          value={tView.userFilter.name || ""}
           name="userfilter"
           onChange={handleChange}
         />

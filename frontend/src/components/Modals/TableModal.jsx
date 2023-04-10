@@ -69,7 +69,7 @@ function TableModal({ open, closetv, onSubmittv }) {
             </label>
             <br />
             <label>
-              Columns Letters seperated by / (A/B/C):
+              Columns Names seperated by /:
               <br />
               <input
                 type="text"
@@ -80,7 +80,7 @@ function TableModal({ open, closetv, onSubmittv }) {
             </label>
             <br />
             <label>
-              Filter (Enter Column Letter):
+              Filter (Enter Column Name):
               <br />
               <input
                 type="text"
@@ -91,7 +91,7 @@ function TableModal({ open, closetv, onSubmittv }) {
             </label>
             <br />
             <label>
-              user_filter (Enter Column Letter) : 
+              user_filter (Enter Column Name) : 
               <br />
               <input
                 type="text"

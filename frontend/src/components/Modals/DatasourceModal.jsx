@@ -48,7 +48,7 @@ function DatasourceModal({ open, closeDS, onSubmitds }) {
             </label>
             <br />
             <label>
-              Key (use column letter):
+              Key (use column name):
               <br />
               <input
                 type="text"

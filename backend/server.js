@@ -82,8 +82,8 @@ app.get("/getUserAndDevType", isAuth, async (req, res) => {
   } else {
     const currentToken = await client.getAccessToken();
     const currentUserToken = currentToken.res.data.refresh_token;
-
     const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+    
     const ownerToken = s2aOwnerUser.refreshToken;
     client.setCredentials({ refresh_token: ownerToken });
 
@@ -199,17 +199,17 @@ app.post("/addTableView", async (req, res) => {
   }
   let cols = [];
 
-  let letters = columns.split("/");
+  let names = columns.split("/");
 
   for (let col of selectedDS.columns) {
-    if (letters.includes(col.colLetter)) {
+    if (names.includes(col.name)) {
       cols.push(col);
     }
   }
 
   let fil = new Column({
-    colLetter : filter,
-    name : "",
+    colLetter : "",
+    name : filter,
     initialValue: "",
     label: false,
     reference: "",
@@ -217,8 +217,8 @@ app.post("/addTableView", async (req, res) => {
     key: false
   });
   let userFil = new Column({
-    colLetter : user_filter,
-    name : "",
+    colLetter : "",
+    name : user_filter,
     initialValue: "",
     label: false,
     reference: "",
@@ -268,10 +268,10 @@ app.post("/editTableView", async (req, res) => {
       selectedDS = ds;
     }
   }
-  var letters = columns.split("/");
+  var names = columns.split("/");
   var cols = []
   for (let col of selectedDS.columns) {
-    if (letters.includes(col.colLetter)) {
+    if (names.includes(col.name)) {
       cols.push(col);
     }
   }
@@ -338,14 +338,15 @@ app.post("/addDataSource", async (req, res) => {
   for (let i = 0; i < sheetdata.data.values.length; i++) {
     console.log(sheetdata.data.values[i]);
     let letter = getColumnLetter(i + 1);
+    let newName = sheetdata.data.values[i][0];
     let colprop = new Column({
       colLetter: letter,
-      name: "",
+      name: newName,
       initialValue: "",
       label: false,
       reference: "",
       type: "",
-      key: letter === key ? true : false,
+      key: newName === key ? true : false,
     });
     await colprop.save();
     list_column.push(colprop);
