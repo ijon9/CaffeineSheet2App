@@ -470,7 +470,7 @@ app.post("/addRecord", async (req, res) => {
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
       range: `${sheetTitle}!A1`,
-      valueInputOption: "RAW",
+      valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       resource: {
         values: [newRow],
