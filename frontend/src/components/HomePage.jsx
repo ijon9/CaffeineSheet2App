@@ -36,7 +36,7 @@ function HomePage() {
           <div>{user.email}</div>
           not a developer <Link to="/login">Go Back</Link>
           <div key={user.userid}>
-            <Link to={`/user/${user.userid}`}>Published apps</Link>
+            <Link to={`/user/${user.email}`}>Published apps</Link>
           </div>
         </div>
       )}

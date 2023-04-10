@@ -10,6 +10,9 @@ import AppDetail from "./components/AppDetail";
 import DSDetail from "./components/DSDetail";
 import TVDetail from "./components/TVDetail";
 import PublishedApp from "./components/EndUsers/PublishedApp";
+import UserAppDetail from "./components/EndUsers/UserAppDetail";
+import UserTVDetail from "./components/EndUsers/UserTVDetail";
+
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +27,8 @@ function App() {
         <Route path="/app/:id/table/:tv" element={<TVDetail />} />
         <Route path="/tableView" element={<TableView />} />
         <Route path="/user/:userid" element={<PublishedApp />} />
+        <Route path="/userApp/:id" element={<UserAppDetail />} />
+        <Route path="/endUser/app/:id/table/:tv" element={<UserTVDetail />} />
       </Routes>
     </BrowserRouter>
   );
