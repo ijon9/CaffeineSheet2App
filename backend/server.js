@@ -188,42 +188,66 @@ app.post("/editApp", async (req, res) => {
 });
 
 app.post("/isUserInRolesheet", async (req, res) => {
-  console.log("Going in rolesheet")
-  const appId = req.body.id;
-  const app = await App.findOne({ _id: appId });
-  const rolesheetURL = app.roleSheet;
+  try {
+    console.log("Going in rolesheet");
+    const sessionid = req.session.id;
+    const userSessionid = await User.findOne({ sessionid });
+    const email = userSessionid.email;
 
-  const sheets = google.sheets({ version: "v4", auth: client });
-  const spreadsheetId = rolesheetURL.split("/")[5];
-  const gid = parseInt(rolesheetURL.split("gid=")[1]);
-  const { data } = await sheets.spreadsheets.get({
-    spreadsheetId,
-    includeGridData: true,
-  });
+    const appId = req.body.id;
+    const app = await App.findOne({ _id: appId });
+    const rolesheetURL = app.roleSheet;
 
-  let title = "";
-  for (let d of data.sheets) {
-    if (d.properties.sheetId == gid) {
-      title = d.properties.title;
+    const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+    const currentToken = await client.getAccessToken();
+    const currentUserToken = currentToken.res.data.refresh_token;
+    const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+
+    const ownerToken = s2aOwnerUser.refreshToken;
+    client.setCredentials({ refresh_token: ownerToken });
+
+    const sheets = google.sheets({ version: "v4", auth: client });
+    const spreadsheetId = rolesheetURL.split("/")[5];
+    const gid = parseInt(rolesheetURL.split("gid=")[1]);
+    const { data } = await sheets.spreadsheets.get({
+      spreadsheetId,
+      includeGridData: true,
+    });
+
+    let title = "";
+    for (let d of data.sheets) {
+      if (d.properties.sheetId == gid) {
+        title = d.properties.title;
+      }
     }
-  }
 
-  const sheetdata = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: `'${title}'!A:Z`,
-    majorDimension: "COLUMNS",
-    valueRenderOption: "FORMATTED_VALUE",
-  });
-  let isUser = false;
-  const users = sheetdata.data.values[1];
-  for (let i = 1; i < users.length; i++) {
-    if (email == users[i]) {
-      console.log(users[i])
-      isUser = true;
+    const sheetdata = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `'${title}'!A:Z`,
+      majorDimension: "COLUMNS",
+      valueRenderOption: "FORMATTED_VALUE",
+    });
+
+    console.log("sheetdata: ", sheetdata.data.values);
+
+    let isUser = false;
+    const endUserColumnIndex = 1; // end users are in the second column
+    const endUsers = sheetdata.data.values[endUserColumnIndex];
+    for (let i = 1; i < endUsers.length; i++) {
+      if (email == endUsers[i]) {
+        console.log(endUsers[i]);
+        isUser = true;
+      }
     }
-  }
 
-  res.send(isUser);
+    // Set the credentials back to the current user's token
+    client.setCredentials({ refresh_token: currentUserToken });
+
+    res.send(isUser);
+  } catch (error) {
+    console.error("Error in /isUserInRolesheet:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.post("/addTableView", async (req, res) => {

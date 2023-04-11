@@ -7,7 +7,7 @@ function AppDetail() {
   let { id } = useParams();
   const [user, setUser] = useState("");
   const [app, setApp] = useState({});
-  const [avail, setAvail] = useState(false);
+  const [avail, setAvail] = useState(null);
   const [tableView, setTableView] = useState([]);
 
   const navigate = useNavigate();
@@ -28,19 +28,20 @@ function AppDetail() {
       });
   }, [user]);
 
-  useEffect(()=> {
+  useEffect(() => {
     async function isAvail() {
-      axios
-      .get("http://localhost:4000/isUserInRolesheet", {user: user, id: id})
-      .then((response) => {
-        setAvail(response.data)
-      })
-      .catch((error) => {
+      try {
+        const response = await axios.post("http://localhost:4000/isUserInRolesheet", {
+          user: user,
+          id: id,
+        });
+        setAvail(response.data);
+      } catch (error) {
         console.log(error);
-      });
+      }
     }
     isAvail();
-  }, [avail])
+  }, [avail, user, id]);
 
   function handleBackToApp() {
     navigate("/user/" + user);
@@ -48,7 +49,7 @@ function AppDetail() {
 
   return (
     <div>
-      {avail ? (
+      {avail === null ? null : avail ? (
         <div>{user}
         <br />
           App Name: {app.name}
