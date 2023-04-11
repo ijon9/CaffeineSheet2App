@@ -83,7 +83,7 @@ app.get("/getUserAndDevType", isAuth, async (req, res) => {
     const currentToken = await client.getAccessToken();
     const currentUserToken = currentToken.res.data.refresh_token;
     const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
-    
+
     const ownerToken = s2aOwnerUser.refreshToken;
     client.setCredentials({ refresh_token: ownerToken });
 
@@ -188,46 +188,71 @@ app.post("/editApp", async (req, res) => {
 });
 
 app.post("/isUserInRolesheet", async (req, res) => {
-  console.log("Going in rolesheet")
-  const appId = req.body.id;
-  const app = await App.findOne({ _id: appId });
-  const rolesheetURL = app.roleSheet;
+  try {
+    console.log("Going in rolesheet");
+    const sessionid = req.session.id;
+    const userSessionid = await User.findOne({ sessionid });
+    const email = userSessionid.email;
 
-  const sheets = google.sheets({ version: "v4", auth: client });
-  const spreadsheetId = rolesheetURL.split("/")[5];
-  const gid = parseInt(rolesheetURL.split("gid=")[1]);
-  const { data } = await sheets.spreadsheets.get({
-    spreadsheetId,
-    includeGridData: true,
-  });
+    const appId = req.body.id;
+    const app = await App.findOne({ _id: appId });
+    const rolesheetURL = app.roleSheet;
 
-  let title = "";
-  for (let d of data.sheets) {
-    if (d.properties.sheetId == gid) {
-      title = d.properties.title;
+    const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+    const currentToken = await client.getAccessToken();
+    const currentUserToken = currentToken.res.data.refresh_token;
+    const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+
+    const ownerToken = s2aOwnerUser.refreshToken;
+    client.setCredentials({ refresh_token: ownerToken });
+
+    const sheets = google.sheets({ version: "v4", auth: client });
+    const spreadsheetId = rolesheetURL.split("/")[5];
+    const gid = parseInt(rolesheetURL.split("gid=")[1]);
+    const { data } = await sheets.spreadsheets.get({
+      spreadsheetId,
+      includeGridData: true,
+    });
+
+    let title = "";
+    for (let d of data.sheets) {
+      if (d.properties.sheetId == gid) {
+        title = d.properties.title;
+      }
     }
-  }
 
-  const sheetdata = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: `'${title}'!A:Z`,
-    majorDimension: "COLUMNS",
-    valueRenderOption: "FORMATTED_VALUE",
-  });
-  let isUser = false;
-  const users = sheetdata.data.values[1];
-  for (let i = 1; i < users.length; i++) {
-    if (email == users[i]) {
-      console.log(users[i])
-      isUser = true;
+    const sheetdata = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `'${title}'!A:Z`,
+      majorDimension: "COLUMNS",
+      valueRenderOption: "FORMATTED_VALUE",
+    });
+
+    console.log("sheetdata: ", sheetdata.data.values);
+
+    let isUser = false;
+    const endUserColumnIndex = 1; // end users are in the second column
+    const endUsers = sheetdata.data.values[endUserColumnIndex];
+    for (let i = 1; i < endUsers.length; i++) {
+      if (email == endUsers[i]) {
+        console.log(endUsers[i]);
+        isUser = true;
+      }
     }
-  }
 
-  res.send(isUser);
+    // Set the credentials back to the current user's token
+    client.setCredentials({ refresh_token: currentUserToken });
+
+    res.send(isUser);
+  } catch (error) {
+    console.error("Error in /isUserInRolesheet:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.post("/addTableView", async (req, res) => {
-  const { name, datasource, columns, filter, user_filter, add, edit } = req.body.data;
+  const { name, datasource, columns, filter, user_filter, add, edit } =
+    req.body.data;
   const del = req.body.data.delete;
   const { selectApp, appId } = req.body;
   let selectedDS;
@@ -247,23 +272,23 @@ app.post("/addTableView", async (req, res) => {
   }
 
   let fil = new Column({
-    colLetter : "",
-    name : filter,
+    colLetter: "",
+    name: filter,
     initialValue: "",
     label: false,
     reference: "",
     type: "Boolean",
-    key: false
+    key: false,
   });
   let userFil = new Column({
-    colLetter : "",
-    name : user_filter,
+    colLetter: "",
+    name: user_filter,
     initialValue: "",
     label: false,
     reference: "",
     type: "String",
-    key: false
-  })
+    key: false,
+  });
   var allowed = [false, false, false];
   allowed[0] = add;
   allowed[1] = edit;
@@ -273,7 +298,7 @@ app.post("/addTableView", async (req, res) => {
     columns: cols,
     viewType: "table",
     dsurl: selectedDS.url,
-    allowedActions: allowed
+    allowedActions: allowed,
   });
 
   await tview.save();
@@ -281,7 +306,7 @@ app.post("/addTableView", async (req, res) => {
   let tableModal = TView({
     view: tview,
     filter: fil,
-    userFilter : userFil
+    userFilter: userFil,
   });
   await tableModal.save();
 
@@ -300,7 +325,7 @@ app.post("/getTableView", async (req, res) => {
 app.post("/editTableView", async (req, res) => {
   const { appId, tView, roles, columns } = req.body;
   const app = await App.findOne({ _id: appId });
-  tView.view.roles = roles.split('/');
+  tView.view.roles = roles.split("/");
   let selectedDS;
   for (let ds of app.dataSources) {
     if (ds.url === tView.view.dsurl) {
@@ -308,7 +333,7 @@ app.post("/editTableView", async (req, res) => {
     }
   }
   var names = columns.split("/");
-  var cols = []
+  var cols = [];
   for (let col of selectedDS.columns) {
     if (names.includes(col.name)) {
       cols.push(col);
@@ -322,10 +347,10 @@ app.post("/editTableView", async (req, res) => {
     }
   }
   await App.findOneAndUpdate({ _id: appId }, { tViews: tViews });
-  await TView.findOneAndUpdate({ _id: tView._id }, 
-    { view: tView.view, 
-      filter : tView.filter, 
-      userFilter : tView.userFilter });
+  await TView.findOneAndUpdate(
+    { _id: tView._id },
+    { view: tView.view, filter: tView.filter, userFilter: tView.userFilter }
+  );
   res.send("Edited Table View");
 });
 
@@ -476,8 +501,8 @@ app.post("/getDisplayColumns", async (req, res) => {
     }
   }
 
-  let colNames = []
-  for(let col of currview.view.columns) {
+  let colNames = [];
+  for (let col of currview.view.columns) {
     colNames.push(col.name);
   }
   const sheetdata = await sheets.spreadsheets.values.get({
@@ -486,13 +511,15 @@ app.post("/getDisplayColumns", async (req, res) => {
     majorDimension: "COLUMNS",
     valueRenderOption: "FORMATTED_VALUE",
   });
-  var temp = []
-  for(var i=0; i<sheetdata.data.values.length; i++) {
-    if(colNames.includes(sheetdata.data.values[i][0])) {
+  var temp = [];
+  for (var i = 0; i < sheetdata.data.values.length; i++) {
+    if (colNames.includes(sheetdata.data.values[i][0])) {
       temp.push(sheetdata.data.values[i]);
     }
   }
-  var dataValues = temp[0].map((_, colIndex) => temp.map(row => row[colIndex]));
+  var dataValues = temp[0].map((_, colIndex) =>
+    temp.map((row) => row[colIndex])
+  );
   console.log(dataValues);
   res.send(dataValues);
 });
@@ -558,7 +585,7 @@ app.post("/deleteRecord", async (req, res) => {
       sheetTitle = d.properties.title;
     }
   }
-  console.log("SheetId: " ,gid);
+  console.log("SheetId: ", gid);
   console.log("RowIndex: " + rowIndex);
 
   try {
