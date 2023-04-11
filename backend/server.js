@@ -187,6 +187,45 @@ app.post("/editApp", async (req, res) => {
   res.send("Edited app");
 });
 
+app.post("/isUserInRolesheet", async (req, res) => {
+  console.log("Going in rolesheet")
+  const appId = req.body.id;
+  const app = await App.findOne({ _id: appId });
+  const rolesheetURL = app.roleSheet;
+
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const spreadsheetId = rolesheetURL.split("/")[5];
+  const gid = parseInt(rolesheetURL.split("gid=")[1]);
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let title = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      title = d.properties.title;
+    }
+  }
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A:Z`,
+    majorDimension: "COLUMNS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+  let isUser = false;
+  const users = sheetdata.data.values[1];
+  for (let i = 1; i < users.length; i++) {
+    if (email == users[i]) {
+      console.log(users[i])
+      isUser = true;
+    }
+  }
+
+  res.send(isUser);
+});
+
 app.post("/addTableView", async (req, res) => {
   const { name, datasource, columns, filter, user_filter, add, edit } =
     req.body.data;

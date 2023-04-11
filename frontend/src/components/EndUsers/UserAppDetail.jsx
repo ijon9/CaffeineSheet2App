@@ -7,6 +7,7 @@ function AppDetail() {
   let { id } = useParams();
   const [user, setUser] = useState("");
   const [app, setApp] = useState({});
+  const [avail, setAvail] = useState(false);
   const [tableView, setTableView] = useState([]);
 
   const navigate = useNavigate();
@@ -19,7 +20,6 @@ function AppDetail() {
       .catch((error) => {
         console.log(error);
       });
-
     axios
       .post("http://localhost:4000/getOneApp", { id: id })
       .then((response) => {
@@ -28,32 +28,54 @@ function AppDetail() {
       });
   }, [user]);
 
+  useEffect(()=> {
+    async function isAvail() {
+      axios
+      .get("http://localhost:4000/isUserInRolesheet", {user: user, id: id})
+      .then((response) => {
+        setAvail(response.data)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+    isAvail();
+  }, [avail])
+
   function handleBackToApp() {
     navigate("/user/" + user);
   }
 
   return (
     <div>
-      <div>{user}</div>
-        App Name: {app.name} 
+      {avail ? (
+        <div>{user}
         <br />
-      <div>
-        <button onClick={handleBackToApp}>Back to apps</button>
-      </div>
-      <div className="left">
-        Tables
+          App Name: {app.name}
+        <br />
         <div>
-          {tableView.length > 0 ? (
-            tableView.map((tv) => (
-              <div key={tv._id}>
-                <Link to={`/endUser/app/${id}/table/${tv._id}`}>{tv.view.name}</Link>
-              </div>
-            ))
-          ) : (
-            <div>No Table Views</div>
-          )}
+          <button onClick={handleBackToApp}>Back to apps</button>
+        </div>
+        <div className="left">
+          Tables
+          <div>
+            {tableView.length > 0 ? (
+              tableView.map((tv) => (
+                <div key={tv._id}>
+                  <Link to={`/endUser/app/${id}/table/${tv._id}`}>{tv.view.name}</Link>
+                </div>
+              ))
+            ) : (
+              <div>No Table Views</div>
+            )}
+          </div>
         </div>
       </div>
+      ) : (
+        <div className="left">
+          You don't have access to this App
+        </div>
+      )}
     </div>
   );
 }
