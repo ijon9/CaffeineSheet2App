@@ -476,14 +476,25 @@ app.post("/getDisplayColumns", async (req, res) => {
     }
   }
 
+  let colNames = []
+  for(let col of currview.view.columns) {
+    colNames.push(col.name);
+  }
   const sheetdata = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: `'${title}'!A:Z`,
-    majorDimension: "ROWS",
+    majorDimension: "COLUMNS",
     valueRenderOption: "FORMATTED_VALUE",
   });
-
-  res.send(sheetdata.data.values);
+  var temp = []
+  for(var i=0; i<sheetdata.data.values.length; i++) {
+    if(colNames.includes(sheetdata.data.values[i][0])) {
+      temp.push(sheetdata.data.values[i]);
+    }
+  }
+  var dataValues = temp[0].map((_, colIndex) => temp.map(row => row[colIndex]));
+  console.log(dataValues);
+  res.send(dataValues);
 });
 
 app.post("/addRecord", async (req, res) => {

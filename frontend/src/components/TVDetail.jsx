@@ -131,6 +131,9 @@ function TVDetail() {
       tView: tView,
       roles: roles,
       columns: columns
+    })
+    .then((response) => {
+      window.location.reload(false);
     });
   };
 
