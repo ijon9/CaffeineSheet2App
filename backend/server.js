@@ -481,7 +481,17 @@ app.post("/getDataSources", async (req, res) => {
 });
 
 app.post("/getDisplayColumns", async (req, res) => {
-  const sheets = google.sheets({ version: "v4", auth: client });
+  const currUser = await User.findOne({ sessionid: req.session.id });
+  const client2 = new OAuth2Client(
+    "475033388248-6sa0d0q32qh2mg9kuvk729tbe5lu22lq.apps.googleusercontent.com",
+    "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",
+    "http://localhost:3000"
+  );
+  client2.setCredentials({ refresh_token : currUser.refreshToken });
+  console.log("Current User: ", currUser.email);
+
+  const sheets = google.sheets({ version: "v4", auth: client2 });
+
   const { appId, tableView } = req.body;
 
   const currview = await TView.findOne({ _id: tableView });
