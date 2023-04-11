@@ -49,31 +49,31 @@ function AppDetail() {
   return (
     <div>
       {avail ? (
+        <div>{user}
+        <br />
+          App Name: {app.name}
+        <br />
+        <div>
+          <button onClick={handleBackToApp}>Back to apps</button>
+        </div>
+        <div className="left">
+          Tables
+          <div>
+            {tableView.length > 0 ? (
+              tableView.map((tv) => (
+                <div key={tv._id}>
+                  <Link to={`/endUser/app/${id}/table/${tv._id}`}>{tv.view.name}</Link>
+                </div>
+              ))
+            ) : (
+              <div>No Table Views</div>
+            )}
+          </div>
+        </div>
+      </div>
+      ) : (
         <div className="left">
           You don't have access to this App
-        </div>
-      ) : (
-        <div>{user}
-          <br />
-            App Name: {app.name}
-          <br />
-          <div>
-            <button onClick={handleBackToApp}>Back to apps</button>
-          </div>
-          <div className="left">
-            Tables
-            <div>
-              {tableView.length > 0 ? (
-                tableView.map((tv) => (
-                  <div key={tv._id}>
-                    <Link to={`/endUser/app/${id}/table/${tv._id}`}>{tv.view.name}</Link>
-                  </div>
-                ))
-              ) : (
-                <div>No Table Views</div>
-              )}
-            </div>
-          </div>
         </div>
       )}
     </div>
