@@ -4,8 +4,10 @@ import Record from "./Record";
 import RecordModal from "./Modals/RecordModal";
 import DeleteRecordModal from "./Modals/DeleteRecordModal";
 import axios from "axios";
+import DetailViewModal from "./Modals/DetailViewModal";
 
 function TVDetail() {
+  axios.defaults.withCredentials = true;
   let { id, tv } = useParams();
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
@@ -16,6 +18,8 @@ function TVDetail() {
   const [RecordModalOpen, setRecordModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
+  const [recordDetail, setRecordDetail] = useState(null);
+  const [recordDetailOpen, setRecordDetailOpen] = useState(null);
 
   let goBack = () => {
     navigate(`/app/${id}`);
@@ -38,7 +42,7 @@ function TVDetail() {
         setRoles(str);
         str = "";
         const tViewCols = response.data.view.columns;
-        for(var i=0; i<tViewCols.length; i++) {
+        for (var i = 0; i < tViewCols.length; i++) {
           str = str.concat(tViewCols[i].name);
           str = str.concat("/");
         }
@@ -75,11 +79,11 @@ function TVDetail() {
       tViewCopy.view.allowedActions[2] = !tViewCopy.view.allowedActions[2];
     } else if (name === "roles") {
       setRoles(value);
-    } else if(name === "columns") {
+    } else if (name === "columns") {
       setColumns(value);
-    } else if(name === "filter") {
+    } else if (name === "filter") {
       tViewCopy.filter.name = value;
-    } else if(name === "userfilter") {
+    } else if (name === "userfilter") {
       tViewCopy.userFilter.name = value;
     }
     setTView(tViewCopy);
@@ -122,19 +126,29 @@ function TVDetail() {
     setDeleteModalOpen(false);
   };
 
-
-
   const handleEdit = (event) => {
     event.preventDefault();
-    axios.post("http://localhost:4000/editTableView", {
+    axios
+      .post("http://localhost:4000/editTableView", {
+        appId: id,
+        tView: tView,
+        roles: roles,
+        columns: columns,
+      })
+      .then((response) => {
+        window.location.reload(false);
+      });
+  };
+
+  const handleGetIndexRow = async (index) => {
+    const getRow = await axios.post("http://localhost:4000/getDetailRecord", {
       appId: id,
-      tView: tView,
-      roles: roles,
-      columns: columns
-    })
-    .then((response) => {
-      window.location.reload(false);
+      index: index,
+      tableView: tv,
     });
+
+    setRecordDetail(getRow.data);
+    setRecordDetailOpen(true);
   };
 
   return tViewSet ? (
@@ -270,6 +284,9 @@ function TVDetail() {
           setRecordToDelete(index);
           setDeleteModalOpen(true);
         }}
+        onDetailOpen={(index) => {
+          handleGetIndexRow(index);
+        }}
       />
       <button onClick={() => setRecordModalOpen(true)}>Add Record</button>
       <RecordModal
@@ -284,7 +301,11 @@ function TVDetail() {
         onDelete={handleDeleteRecord}
         recordIndex={recordToDelete}
       />
-
+      <DetailViewModal
+        open={recordDetailOpen}
+        onClose={() => setRecordDetailOpen(false)}
+        recordIndex={recordDetail}
+      />
     </div>
   ) : null;
 }

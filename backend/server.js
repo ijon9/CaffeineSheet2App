@@ -480,6 +480,44 @@ app.post("/getDataSources", async (req, res) => {
   res.send(dsources);
 });
 
+app.post("/getDetailRecord", async (req, res) => {
+  const { index, appId, tableView } = req.body;
+
+  const sheets = google.sheets({ version: "v4", auth: client });
+
+  const currview = await TView.findOne({ _id: tableView });
+
+  const spreadsheetId = currview.view.dsurl.split("/")[5];
+  const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
+
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let title = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      title = d.properties.title;
+    }
+  }
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A:Z`,
+    majorDimension: "ROWS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+
+  // console.log(sheetdata.data.values[index]);
+  // console.log(sheetdata.data.values[0]);
+
+  res.send({
+    heading: sheetdata.data.values[0],
+    row: sheetdata.data.values[index],
+  });
+});
+
 app.post("/getDisplayColumns", async (req, res) => {
   const currUser = await User.findOne({ sessionid: req.session.id });
   const client2 = new OAuth2Client(
@@ -487,8 +525,8 @@ app.post("/getDisplayColumns", async (req, res) => {
     "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",
     "http://localhost:3000"
   );
-  client2.setCredentials({ refresh_token : currUser.refreshToken });
-  console.log("Current User: ", currUser.email);
+  client2.setCredentials({ refresh_token: currUser.refreshToken });
+  // console.log("Current User: ", currUser.email);
 
   const sheets = google.sheets({ version: "v4", auth: client2 });
 
@@ -530,7 +568,7 @@ app.post("/getDisplayColumns", async (req, res) => {
   var dataValues = temp[0].map((_, colIndex) =>
     temp.map((row) => row[colIndex])
   );
-  console.log(dataValues);
+  // console.log(dataValues);
   res.send(dataValues);
 });
 
@@ -595,8 +633,8 @@ app.post("/deleteRecord", async (req, res) => {
       sheetTitle = d.properties.title;
     }
   }
-  console.log("SheetId: ", gid);
-  console.log("RowIndex: " + rowIndex);
+  // console.log("SheetId: ", gid);
+  // console.log("RowIndex: " + rowIndex);
 
   try {
     const response = await sheets.spreadsheets.batchUpdate({
