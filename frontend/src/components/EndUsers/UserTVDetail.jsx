@@ -14,6 +14,8 @@ function TVDetail() {
   const [tViewSet, setTViewSet] = useState(false);
   const [RecordModalOpen, setRecordModalOpen] = useState(false);
   const [allowed, setAllowed] = useState("");
+  const [add, setAdd] = useState(false);
+  const [del, setDel] = useState(false);
 
   let goBack = () => {
     navigate(`/userApp/${id}`);
@@ -42,12 +44,14 @@ function TVDetail() {
         }
         str = str.slice(0, str.length - 1);
         setColumns(str);
-        setTViewSet(true);
         var a = "";
         if(response.data.view.allowedActions[0]) a += "add ";
         if(response.data.view.allowedActions[1]) a += "edit ";
         if(response.data.view.allowedActions[2]) a += "delete ";
         setAllowed(a);
+        setAdd(response.data.view.allowedActions[0]);
+        setDel(response.data.view.allowedActions[2]);
+        setTViewSet(true);
       });
 
     axios
@@ -96,8 +100,15 @@ function TVDetail() {
         <br />
         <b>User Filter Column :</b> {tView.userFilter.name}
         <br />
-      <Record records={records}></Record>
-      <button onClick={() => setRecordModalOpen(true)}>Add Record</button>
+      <Record records={records} del={del} ></Record>
+      {(() => {
+        if (add) {
+          return <button onClick={() => setRecordModalOpen(true)}>Add Record</button>;
+        }
+        else {
+          return "";
+        }
+      })()}
       <RecordModal
         open={RecordModalOpen}
         onClose={() => setRecordModalOpen(false)}

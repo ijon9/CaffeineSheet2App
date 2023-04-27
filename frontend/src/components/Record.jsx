@@ -1,9 +1,9 @@
 import React from "react";
 
-function Record({ records, onDelete, onDetailOpen }) {
+function Record({ records, onDelete, onDetailOpen, del }) {
   return (
     <div>
-      <table>
+      <table border="2px">
         <tbody>
           {records.map((row, index) => (
             <tr key={index}>
@@ -12,7 +12,15 @@ function Record({ records, onDelete, onDetailOpen }) {
               ))}
               {index !== 0 && (
                 <td>
-                  <button onClick={() => onDelete(index)}>Delete</button>
+                  {/* <button onClick={() => onDelete(index)}>Delete</button> */}
+                  {(() => {
+                  if (del) {
+                    return <button onClick={() => onDelete(index)}>Delete</button>;
+                  }
+                  else {
+                    return "";
+                  }
+                  })()}
                   <button onClick={() => onDetailOpen(index)}> Detail </button>
                 </td>
               )}

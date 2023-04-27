@@ -20,6 +20,8 @@ function TVDetail() {
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [recordDetail, setRecordDetail] = useState(null);
   const [recordDetailOpen, setRecordDetailOpen] = useState(null);
+  const [add, setAdd] = useState(false);
+  const [del, setDel] = useState(false);
 
   let goBack = () => {
     navigate(`/app/${id}`);
@@ -48,6 +50,8 @@ function TVDetail() {
         }
         str = str.slice(0, str.length - 1);
         setColumns(str);
+        setAdd(response.data.view.allowedActions[0]);
+        setDel(response.data.view.allowedActions[2]);
         setTViewSet(true);
       });
 
@@ -150,6 +154,7 @@ function TVDetail() {
     setRecordDetail(getRow.data);
     setRecordDetailOpen(true);
   };
+
 
   return tViewSet ? (
     <div>
@@ -287,8 +292,17 @@ function TVDetail() {
         onDetailOpen={(index) => {
           handleGetIndexRow(index);
         }}
+        del={del}
       />
-      <button onClick={() => setRecordModalOpen(true)}>Add Record</button>
+      {(() => {
+        if (add) {
+          return <button onClick={() => setRecordModalOpen(true)}>Add Record</button>;
+        }
+        else {
+          return "";
+        }
+      })()}
+      
       <RecordModal
         open={RecordModalOpen}
         onClose={() => setRecordModalOpen(false)}
