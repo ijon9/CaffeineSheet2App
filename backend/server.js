@@ -565,9 +565,12 @@ app.post("/getDisplayColumns", async (req, res) => {
       temp.push(sheetdata.data.values[i]);
     }
   }
-  var dataValues = temp[0].map((_, colIndex) =>
-    temp.map((row) => row[colIndex])
-  );
+  var dataValues = []
+  if(temp.length != 0) {
+    dataValues = temp[0].map((_, colIndex) =>
+      temp.map((row) => row[colIndex])
+    );
+  }
   // console.log(dataValues);
   res.send(dataValues);
 });
