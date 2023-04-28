@@ -257,6 +257,12 @@ function TVDetail() {
           onChange={handleChange}
         />
         <br />
+        All Columns:
+        <ol>
+          {tView.view.allColumns.map((c) => (
+            <li>{c.name}</li>
+          ))}
+        </ol>
         Columns (Separated by /) :{" "}
         <input
           type="text"

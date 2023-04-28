@@ -296,6 +296,7 @@ app.post("/addTableView", async (req, res) => {
   let tview = new View({
     name: name,
     columns: cols,
+    allColumns: selectedDS.columns,
     viewType: "table",
     dsurl: selectedDS.url,
     allowedActions: allowed,

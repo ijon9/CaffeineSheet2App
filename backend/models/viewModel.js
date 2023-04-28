@@ -6,6 +6,7 @@ const viewSchema = mongoose.Schema({
   name: String,
   table: String,
   columns: [Column.schema],
+  allColumns: [Column.schema],
   viewType: String,
   // 0: add record, 1: edit record, 2: delete record
   allowedActions: [Boolean],
