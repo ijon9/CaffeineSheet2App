@@ -560,9 +560,17 @@ app.post("/getDisplayColumns", async (req, res) => {
     valueRenderOption: "FORMATTED_VALUE",
   });
   var temp = [];
+  var filter = [];
+  var userFilter = [];
   for (var i = 0; i < sheetdata.data.values.length; i++) {
     if (colNames.includes(sheetdata.data.values[i][0])) {
       temp.push(sheetdata.data.values[i]);
+    }
+    if(sheetdata.data.values[i][0] === currview.filter.name) {
+      filter = sheetdata.data.values[i];
+    }
+    if(sheetdata.data.values[i][0] === currview.userFilter.name) {
+      userFilter = sheetdata.data.values[i];
     }
   }
   var dataValues = []
@@ -570,6 +578,34 @@ app.post("/getDisplayColumns", async (req, res) => {
     dataValues = temp[0].map((_, colIndex) =>
       temp.map((row) => row[colIndex])
     );
+    // Check filter and userFilter
+    if(filter.length > 0 && userFilter.length > 0) {
+      var temp2 = [dataValues[0]];
+      for(var i=1; i<dataValues.length; i++) {
+        if(filter[i] === 'TRUE' && userFilter[i] === currUser.email) {
+            temp2.push(dataValues[i]);
+        }
+      }
+      dataValues = temp2;
+    }
+    else if(filter.length > 0) {
+      var temp2 = [dataValues[0]];
+      for(var i=1; i<dataValues.length; i++) {
+        if(filter[i] === 'TRUE') {
+            temp2.push(dataValues[i]);
+        }
+      }
+      dataValues = temp2;
+    }
+    else if(userFilter.length > 0) {
+      var temp2 = [dataValues[0]];
+      for(var i=1; i<dataValues.length; i++) {
+        if(userFilter[i] === currUser.email) {
+            temp2.push(dataValues[i]);
+        }
+      }
+      dataValues = temp2;
+    }
   }
   // console.log(dataValues);
   res.send(dataValues);
