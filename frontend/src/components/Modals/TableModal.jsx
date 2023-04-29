@@ -69,6 +69,16 @@ function TableModal({ open, closetv, onSubmittv }) {
             </label>
             <br />
             <label>
+              Roles seperated by /:
+              <br />
+              <input
+                type="text"
+                name="roles"
+                value={inputs.roles || ""}
+                onChange={handleInputChange}
+              />
+            </label>
+            {/* <label>
               Columns Names seperated by /:
               <br />
               <input
@@ -100,7 +110,7 @@ function TableModal({ open, closetv, onSubmittv }) {
                 onChange={handleInputChange}
               />
             </label>
-            <br />
+            <br /> */}
             <input
               type="checkbox"
               value="add"

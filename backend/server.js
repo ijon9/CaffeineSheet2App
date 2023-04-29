@@ -251,7 +251,9 @@ app.post("/isUserInRolesheet", async (req, res) => {
 });
 
 app.post("/addTableView", async (req, res) => {
-  const { name, datasource, columns, filter, user_filter, add, edit } =
+  // const { name, datasource, columns, filter, user_filter, add, edit } =
+  //   req.body.data;
+  const { name, datasource, roles, add, edit } =
     req.body.data;
   const del = req.body.data.delete;
   const { selectApp, appId } = req.body;
@@ -263,17 +265,17 @@ app.post("/addTableView", async (req, res) => {
   }
   let cols = [];
 
-  let names = columns.split("/");
+  // let names = columns.split("/");
 
-  for (let col of selectedDS.columns) {
-    if (names.includes(col.name)) {
-      cols.push(col);
-    }
-  }
+  // for (let col of selectedDS.columns) {
+  //   if (names.includes(col.name)) {
+  //     cols.push(col);
+  //   }
+  // }
 
   let fil = new Column({
     colLetter: "",
-    name: filter,
+    name: "",
     initialValue: "",
     label: false,
     reference: "",
@@ -282,7 +284,7 @@ app.post("/addTableView", async (req, res) => {
   });
   let userFil = new Column({
     colLetter: "",
-    name: user_filter,
+    name: "",
     initialValue: "",
     label: false,
     reference: "",
@@ -295,6 +297,7 @@ app.post("/addTableView", async (req, res) => {
   allowed[2] = del;
   let tview = new View({
     name: name,
+    roles: roles.split("/"),
     columns: cols,
     allColumns: selectedDS.columns,
     viewType: "table",
