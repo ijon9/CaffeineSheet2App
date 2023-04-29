@@ -13,7 +13,7 @@ function TVDetail() {
   const [records, setRecords] = useState([]);
   const [tView, setTView] = useState({});
   const [roles, setRoles] = useState("");
-  const [columns, setColumns] = useState("");
+  const [colArray, setColArray] = useState([]);
   const [tViewSet, setTViewSet] = useState(false);
   const [RecordModalOpen, setRecordModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -42,14 +42,19 @@ function TVDetail() {
         }
         str = str.slice(0, str.length - 1);
         setRoles(str);
-        str = "";
-        const tViewCols = response.data.view.columns;
-        for (var i = 0; i < tViewCols.length; i++) {
-          str = str.concat(tViewCols[i].name);
-          str = str.concat("/");
+        var arr = [];
+        var currColNames = [];
+        for(let col of response.data.view.columns) {
+          currColNames.push(col.name);
+        } 
+        for(var i=0; i<response.data.view.allColumns.length; i++) {
+          if(currColNames.includes(response.data.view.allColumns[i].name)) {
+            arr[i] = true;
+          } else {
+            arr[i] = false;
+          }
         }
-        str = str.slice(0, str.length - 1);
-        setColumns(str);
+        setColArray(arr);
         setAdd(response.data.view.allowedActions[0]);
         setDel(response.data.view.allowedActions[2]);
         setTViewSet(true);
@@ -83,12 +88,15 @@ function TVDetail() {
       tViewCopy.view.allowedActions[2] = !tViewCopy.view.allowedActions[2];
     } else if (name === "roles") {
       setRoles(value);
-    } else if (name === "columns") {
-      setColumns(value);
     } else if (name === "filter") {
       tViewCopy.filter.name = value;
     } else if (name === "userfilter") {
       tViewCopy.userFilter.name = value;
+    } else if(name === "col") {
+      const ind = parseInt(value);
+      var colArrCopy = JSON.parse(JSON.stringify(colArray));
+      colArrCopy[ind] = !colArrCopy[ind];
+      setColArray(colArrCopy);
     }
     setTView(tViewCopy);
     // setDataSource({ ...dataSource, [name]: value });
@@ -137,7 +145,7 @@ function TVDetail() {
         appId: id,
         tView: tView,
         roles: roles,
-        columns: columns,
+        colArray: colArray
       })
       .then((response) => {
         window.location.reload(false);
@@ -259,18 +267,24 @@ function TVDetail() {
         <br />
         All Columns:
         <ol>
-          {tView.view.allColumns.map((c) => (
-            <li>{c.name}</li>
+          {tView.view.allColumns.map((c, ind) => (
+            <li>{c.name}
+            {(colArray[ind]) ? 
+            <input
+            type="checkbox"
+            value={ind}
+            onChange={handleChange}
+            name="col"
+            defaultChecked /> 
+             : <input
+             type="checkbox"
+             value={ind}
+             onChange={handleChange}
+             name="col"
+            />}
+            </li>
           ))}
         </ol>
-        Columns (Separated by /) :{" "}
-        <input
-          type="text"
-          value={columns || ""}
-          name="columns"
-          onChange={handleChange}
-        />
-        <br />
         Filter Column (Enter Column Name) :{" "}
         <input
           type="text"

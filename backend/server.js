@@ -324,7 +324,7 @@ app.post("/getTableView", async (req, res) => {
 });
 
 app.post("/editTableView", async (req, res) => {
-  const { appId, tView, roles, columns } = req.body;
+  const { appId, tView, roles, colArray } = req.body;
   const app = await App.findOne({ _id: appId });
   tView.view.roles = roles.split("/");
   let selectedDS;
@@ -333,11 +333,10 @@ app.post("/editTableView", async (req, res) => {
       selectedDS = ds;
     }
   }
-  var names = columns.split("/");
   var cols = [];
-  for (let col of selectedDS.columns) {
-    if (names.includes(col.name)) {
-      cols.push(col);
+  for(var i=0; i<selectedDS.columns.length; i++) {
+    if(colArray[i]) {
+      cols.push(selectedDS.columns[i]);
     }
   }
   tView.view.columns = cols;
@@ -447,8 +446,10 @@ app.post("/editDataSource", async (req, res) => {
   const { appId, dsId, name, url, cols } = req.body;
   const app = await App.findOne({ _id: appId });
   var dSources = app.dataSources;
+  var thisDS = {};
   for (var i = 0; i < dSources.length; i++) {
     if (dSources[i]._id.toString() === dsId) {
+      thisDS = dSources[i];
       dSources[i].name = name;
       dSources[i].url = url;
       dSources[i].columns = cols;
@@ -471,6 +472,14 @@ app.post("/editDataSource", async (req, res) => {
       }
     );
   }
+  var tViews = app.tViews;
+  for (var i = 0; i < tViews.length; i++) {
+    if (tViews[i].view.dsurl === thisDS.url) {
+      tViews[i].view.allColumns = cols;
+      await TView.findOneAndUpdate({_id : tViews[i]._id }, { view : tViews[i].view })
+    }
+  }
+  await App.findOneAndUpdate({ _id: appId }, { tViews: tViews });
   res.send("Edited Data Source");
 });
 
