@@ -44,11 +44,11 @@ function TVDetail() {
         setRoles(str);
         var arr = [];
         var currColNames = [];
-        for(let col of response.data.view.columns) {
+        for (let col of response.data.view.columns) {
           currColNames.push(col.name);
-        } 
-        for(var i=0; i<response.data.view.allColumns.length; i++) {
-          if(currColNames.includes(response.data.view.allColumns[i].name)) {
+        }
+        for (var i = 0; i < response.data.view.allColumns.length; i++) {
+          if (currColNames.includes(response.data.view.allColumns[i].name)) {
             arr[i] = true;
           } else {
             arr[i] = false;
@@ -92,7 +92,7 @@ function TVDetail() {
       tViewCopy.filter.name = value;
     } else if (name === "userfilter") {
       tViewCopy.userFilter.name = value;
-    } else if(name === "col") {
+    } else if (name === "col") {
       const ind = parseInt(value);
       var colArrCopy = JSON.parse(JSON.stringify(colArray));
       colArrCopy[ind] = !colArrCopy[ind];
@@ -145,7 +145,7 @@ function TVDetail() {
         appId: id,
         tView: tView,
         roles: roles,
-        colArray: colArray
+        colArray: colArray,
       })
       .then((response) => {
         window.location.reload(false);
@@ -156,13 +156,13 @@ function TVDetail() {
     const getRow = await axios.post("http://localhost:4000/getDetailRecord", {
       appId: id,
       index: index,
+      records: records,
       tableView: tv,
     });
 
     setRecordDetail(getRow.data);
     setRecordDetailOpen(true);
   };
-
 
   return tViewSet ? (
     <div>
@@ -268,20 +268,24 @@ function TVDetail() {
         All Columns:
         <ol>
           {tView.view.allColumns.map((c, ind) => (
-            <li>{c.name}
-            {(colArray[ind]) ? 
-            <input
-            type="checkbox"
-            value={ind}
-            onChange={handleChange}
-            name="col"
-            defaultChecked /> 
-             : <input
-             type="checkbox"
-             value={ind}
-             onChange={handleChange}
-             name="col"
-            />}
+            <li>
+              {c.name}
+              {colArray[ind] ? (
+                <input
+                  type="checkbox"
+                  value={ind}
+                  onChange={handleChange}
+                  name="col"
+                  defaultChecked
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  value={ind}
+                  onChange={handleChange}
+                  name="col"
+                />
+              )}
             </li>
           ))}
         </ol>
@@ -316,13 +320,14 @@ function TVDetail() {
       />
       {(() => {
         if (add) {
-          return <button onClick={() => setRecordModalOpen(true)}>Add Record</button>;
-        }
-        else {
+          return (
+            <button onClick={() => setRecordModalOpen(true)}>Add Record</button>
+          );
+        } else {
           return "";
         }
       })()}
-      
+
       <RecordModal
         open={RecordModalOpen}
         onClose={() => setRecordModalOpen(false)}

@@ -14,12 +14,13 @@ function Record({ records, onDelete, onDetailOpen, del }) {
                 <td>
                   {/* <button onClick={() => onDelete(index)}>Delete</button> */}
                   {(() => {
-                  if (del) {
-                    return <button onClick={() => onDelete(index)}>Delete</button>;
-                  }
-                  else {
-                    return "";
-                  }
+                    if (del) {
+                      return (
+                        <button onClick={() => onDelete(index)}>Delete</button>
+                      );
+                    } else {
+                      return "";
+                    }
                   })()}
                   <button onClick={() => onDetailOpen(index)}> Detail </button>
                 </td>

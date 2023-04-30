@@ -64,6 +64,7 @@ function TVDetail() {
       })
       .then((response) => {
         setRecords(response.data);
+        // console.log(response.data);
       });
   }, []);
 
@@ -87,6 +88,7 @@ function TVDetail() {
     const getRow = await axios.post("http://localhost:4000/getDetailRecord", {
       appId: id,
       index: index,
+      records: records,
       tableView: tv,
     });
 

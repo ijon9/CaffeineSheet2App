@@ -189,7 +189,7 @@ app.post("/editApp", async (req, res) => {
 
 app.post("/isUserInRolesheet", async (req, res) => {
   try {
-    console.log("Going in rolesheet");
+    // console.log("Going in rolesheet");
     const sessionid = req.session.id;
     const userSessionid = await User.findOne({ sessionid });
     const email = userSessionid.email;
@@ -228,14 +228,14 @@ app.post("/isUserInRolesheet", async (req, res) => {
       valueRenderOption: "FORMATTED_VALUE",
     });
 
-    console.log("sheetdata: ", sheetdata.data.values);
+    // console.log("sheetdata: ", sheetdata.data.values);
 
     let isUser = false;
     const endUserColumnIndex = 1; // end users are in the second column
     const endUsers = sheetdata.data.values[endUserColumnIndex];
     for (let i = 1; i < endUsers.length; i++) {
       if (email == endUsers[i]) {
-        console.log(endUsers[i]);
+        // console.log(endUsers[i]);
         isUser = true;
       }
     }
@@ -253,8 +253,7 @@ app.post("/isUserInRolesheet", async (req, res) => {
 app.post("/addTableView", async (req, res) => {
   // const { name, datasource, columns, filter, user_filter, add, edit } =
   //   req.body.data;
-  const { name, datasource, roles, add, edit } =
-    req.body.data;
+  const { name, datasource, roles, add, edit } = req.body.data;
   const del = req.body.data.delete;
   const { selectApp, appId } = req.body;
   let selectedDS;
@@ -337,8 +336,8 @@ app.post("/editTableView", async (req, res) => {
     }
   }
   var cols = [];
-  for(var i=0; i<selectedDS.columns.length; i++) {
-    if(colArray[i]) {
+  for (var i = 0; i < selectedDS.columns.length; i++) {
+    if (colArray[i]) {
       cols.push(selectedDS.columns[i]);
     }
   }
@@ -403,7 +402,7 @@ app.post("/addDataSource", async (req, res) => {
   let list_column = [];
 
   for (let i = 0; i < sheetdata.data.values.length; i++) {
-    console.log(sheetdata.data.values[i]);
+    // console.log(sheetdata.data.values[i]);
     let letter = getColumnLetter(i + 1);
     let newName = sheetdata.data.values[i][0];
     let colprop = new Column({
@@ -479,7 +478,10 @@ app.post("/editDataSource", async (req, res) => {
   for (var i = 0; i < tViews.length; i++) {
     if (tViews[i].view.dsurl === thisDS.url) {
       tViews[i].view.allColumns = cols;
-      await TView.findOneAndUpdate({_id : tViews[i]._id }, { view : tViews[i].view })
+      await TView.findOneAndUpdate(
+        { _id: tViews[i]._id },
+        { view: tViews[i].view }
+      );
     }
   }
   await App.findOneAndUpdate({ _id: appId }, { tViews: tViews });
@@ -494,40 +496,43 @@ app.post("/getDataSources", async (req, res) => {
 });
 
 app.post("/getDetailRecord", async (req, res) => {
-  const { index, appId, tableView } = req.body;
+  const { index, appId, tableView, records } = req.body;
 
-  const sheets = google.sheets({ version: "v4", auth: client });
+  // const sheets = google.sheets({ version: "v4", auth: client });
 
-  const currview = await TView.findOne({ _id: tableView });
+  // const currview = await TView.findOne({ _id: tableView });
 
-  const spreadsheetId = currview.view.dsurl.split("/")[5];
-  const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
+  // const spreadsheetId = currview.view.dsurl.split("/")[5];
+  // const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
 
-  const { data } = await sheets.spreadsheets.get({
-    spreadsheetId,
-    includeGridData: true,
-  });
+  // const { data } = await sheets.spreadsheets.get({
+  //   spreadsheetId,
+  //   includeGridData: true,
+  // });
 
-  let title = "";
-  for (let d of data.sheets) {
-    if (d.properties.sheetId == gid) {
-      title = d.properties.title;
-    }
-  }
+  // let title = "";
+  // for (let d of data.sheets) {
+  //   if (d.properties.sheetId == gid) {
+  //     title = d.properties.title;
+  //   }
+  // }
 
-  const sheetdata = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: `'${title}'!A:Z`,
-    majorDimension: "ROWS",
-    valueRenderOption: "FORMATTED_VALUE",
-  });
+  // const sheetdata = await sheets.spreadsheets.values.get({
+  //   spreadsheetId,
+  //   range: `'${title}'!A:Z`,
+  //   majorDimension: "ROWS",
+  //   valueRenderOption: "FORMATTED_VALUE",
+  // });
 
-  // console.log(sheetdata.data.values[index]);
   // console.log(sheetdata.data.values[0]);
+  // console.log(sheetdata.data.values[index]);
+  // console.log("aaaaaaaaaaaaaaaaaaa");
+  // console.log(records[0][0]);
+  // console.log(records[index]);
 
   res.send({
-    heading: sheetdata.data.values[0],
-    row: sheetdata.data.values[index],
+    heading: records[0],
+    row: records[index],
   });
 });
 
@@ -579,47 +584,44 @@ app.post("/getDisplayColumns", async (req, res) => {
     if (colNames.includes(sheetdata.data.values[i][0])) {
       temp.push(sheetdata.data.values[i]);
     }
-    if(sheetdata.data.values[i][0] === currview.filter.name) {
+    if (sheetdata.data.values[i][0] === currview.filter.name) {
       filter = sheetdata.data.values[i];
     }
-    if(sheetdata.data.values[i][0] === currview.userFilter.name) {
+    if (sheetdata.data.values[i][0] === currview.userFilter.name) {
       userFilter = sheetdata.data.values[i];
     }
   }
-  var dataValues = []
-  if(temp.length != 0) {
-    dataValues = temp[0].map((_, colIndex) =>
-      temp.map((row) => row[colIndex])
-    );
+  var dataValues = [];
+  if (temp.length != 0) {
+    dataValues = temp[0].map((_, colIndex) => temp.map((row) => row[colIndex]));
     // Check filter and userFilter
-    if(filter.length > 0 && userFilter.length > 0) {
+    if (filter.length > 0 && userFilter.length > 0) {
       var temp2 = [dataValues[0]];
-      for(var i=1; i<dataValues.length; i++) {
-        if(filter[i] === 'TRUE' && userFilter[i] === currUser.email) {
-            temp2.push(dataValues[i]);
+      for (var i = 1; i < dataValues.length; i++) {
+        if (filter[i] === "TRUE" && userFilter[i] === currUser.email) {
+          temp2.push(dataValues[i]);
         }
       }
       dataValues = temp2;
-    }
-    else if(filter.length > 0) {
+    } else if (filter.length > 0) {
       var temp2 = [dataValues[0]];
-      for(var i=1; i<dataValues.length; i++) {
-        if(filter[i] === 'TRUE') {
-            temp2.push(dataValues[i]);
+      for (var i = 1; i < dataValues.length; i++) {
+        if (filter[i] === "TRUE") {
+          temp2.push(dataValues[i]);
         }
       }
       dataValues = temp2;
-    }
-    else if(userFilter.length > 0) {
+    } else if (userFilter.length > 0) {
       var temp2 = [dataValues[0]];
-      for(var i=1; i<dataValues.length; i++) {
-        if(userFilter[i] === currUser.email) {
-            temp2.push(dataValues[i]);
+      for (var i = 1; i < dataValues.length; i++) {
+        if (userFilter[i] === currUser.email) {
+          temp2.push(dataValues[i]);
         }
       }
       dataValues = temp2;
     }
   }
+
   // console.log(dataValues);
   res.send(dataValues);
 });
