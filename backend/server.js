@@ -231,11 +231,18 @@ app.post("/isUserInRolesheet", async (req, res) => {
     // console.log("sheetdata: ", sheetdata.data.values);
 
     let isUser = false;
-    const endUserColumnIndex = 1; // end users are in the second column
-    const endUsers = sheetdata.data.values[endUserColumnIndex];
-    for (let i = 1; i < endUsers.length; i++) {
-      if (email == endUsers[i]) {
-        // console.log(endUsers[i]);
+
+    // const endUserColumnIndex = 1; // end users are in the second column
+    // const endUsers = sheetdata.data.values[endUserColumnIndex];
+    // for (let i = 1; i < endUsers.length; i++) {
+    //   if (email == endUsers[i]) {
+    //     console.log(endUsers[i]);
+    //     isUser = true;
+    //   }
+    // }
+
+    for (var i = 1; i < sheetdata.data.values.length; i++) {
+      if (sheetdata.data.values[i].includes(email)) {
         isUser = true;
       }
     }
@@ -248,6 +255,60 @@ app.post("/isUserInRolesheet", async (req, res) => {
     console.error("Error in /isUserInRolesheet:", error);
     res.status(500).send("Internal Server Error");
   }
+});
+
+app.post("/isUserARole", async (req, res) => {
+  console.log("Going in rolesheet");
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  const email = userSessionid.email;
+
+  const appId = req.body.id;
+  const app = await App.findOne({ _id: appId });
+  const rolesheetURL = app.roleSheet;
+
+  const tView = await TView.findOne({ _id: req.body.tv });
+
+  const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+  const currentToken = await client.getAccessToken();
+  const currentUserToken = currentToken.res.data.refresh_token;
+  const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+
+  const ownerToken = s2aOwnerUser.refreshToken;
+  client.setCredentials({ refresh_token: ownerToken });
+
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const spreadsheetId = rolesheetURL.split("/")[5];
+  const gid = parseInt(rolesheetURL.split("gid=")[1]);
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let title = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      title = d.properties.title;
+    }
+  }
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A:Z`,
+    majorDimension: "COLUMNS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+
+  var isARole = false;
+  for (let col of sheetdata.data.values) {
+    if (tView.view.roles.includes(col[0]) && col.includes(email)) {
+      isARole = true;
+    }
+  }
+
+  // Set the credentials back to the current user's token
+  client.setCredentials({ refresh_token: currentUserToken });
+  res.send(isARole);
 });
 
 app.post("/addTableView", async (req, res) => {
