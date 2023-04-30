@@ -721,9 +721,29 @@ app.post("/addRecord", async (req, res) => {
   }
 });
 
+function arraysEqual(a, b) {
+  // Check if the arrays are the same length
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  // Check each element of the arrays
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+
+  // The arrays are equal
+  return true;
+}
+
 app.post("/deleteRecord", async (req, res) => {
+  let { records, rowIndex, tableView, appId } = req.body;
+  let itemToDelete = records[rowIndex];
+  records.splice(rowIndex, 1);
+
   const sheets = google.sheets({ version: "v4", auth: client });
-  const { appId, tableView, rowIndex } = req.body;
 
   const currview = await TView.findOne({ _id: tableView });
 
@@ -746,8 +766,24 @@ app.post("/deleteRecord", async (req, res) => {
       sheetTitle = d.properties.title;
     }
   }
-  // console.log("SheetId: ", gid);
-  // console.log("RowIndex: " + rowIndex);
+  // // console.log("SheetId: ", gid);
+  // // console.log("RowIndex: " + rowIndex);
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${sheetTitle}'!A:Z`,
+    majorDimension: "ROWS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+
+  let indexToDelete;
+  for (let i = 0; i < sheetdata.data.values.length; i++) {
+    let result = arraysEqual(itemToDelete, sheetdata.data.values[i]);
+    if (result) {
+      indexToDelete = i;
+      break;
+    }
+  }
 
   try {
     const response = await sheets.spreadsheets.batchUpdate({
@@ -759,15 +795,15 @@ app.post("/deleteRecord", async (req, res) => {
               range: {
                 sheetId: gid,
                 dimension: "ROWS",
-                startIndex: rowIndex,
-                endIndex: rowIndex + 1,
+                startIndex: indexToDelete,
+                endIndex: indexToDelete + 1,
               },
             },
           },
         ],
       },
     });
-    res.send(response.data);
+    res.send(records);
   } catch (error) {
     console.log(error);
   }
