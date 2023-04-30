@@ -4,6 +4,7 @@ import Record from "../Record";
 import RecordModal from "../Modals/RecordModal";
 import axios from "axios";
 import DetailViewModal from "../Modals/DetailViewModal";
+import DeleteRecordModal from "../Modals/DeleteRecordModal";
 
 function TVDetail() {
   let { id, tv } = useParams();
@@ -21,6 +22,8 @@ function TVDetail() {
   const [recordDetailOpen, setRecordDetailOpen] = useState(null);
   const [isARole, setIsARole] = useState(false);
   const [isARoleSet, setIsARoleSet] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState(null);
 
   let goBack = () => {
     navigate(`/userApp/${id}`);
@@ -68,7 +71,7 @@ function TVDetail() {
         setRecords(response.data);
         // console.log(response.data);
       });
-    
+
     axios
       .post("http://localhost:4000/isUserARole", {
         id: id,
@@ -108,56 +111,92 @@ function TVDetail() {
     setRecordDetailOpen(true);
   };
 
-  return tViewSet && isARoleSet ? ( isARole ? (
-    <div>
-      <div>TVDetail</div>
-      <button onClick={goBack}>back</button>
-      <br />
-      <b>Name:</b> {tView.view.name}
-      <br />
-      <b>Table:</b> {tView.view.table}
-      <br />
-      <b>View Type:</b> {tView.view.viewType}
-      <br />
-      <b>Allowed Actions:</b> {allowed}
-      <br />
-      <b>Roles (Separated by /) :</b> {roles}
-      <br />
-      <b>Columns (Separated by /) :</b> {columns}
-      <br />
-      <b>Filter Column :</b> {tView.filter.name}
-      <br />
-      <b>User Filter Column :</b> {tView.userFilter.name}
-      <br />
-      <Record
-        records={records}
-        del={del}
-        onDetailOpen={(index) => {
-          handleGetIndexRow(index);
-        }}
-      ></Record>
-      {(() => {
-        if (add) {
-          return (
-            <button onClick={() => setRecordModalOpen(true)}>Add Record</button>
-          );
-        } else {
-          return "";
-        }
-      })()}
-      <RecordModal
-        open={RecordModalOpen}
-        onClose={() => setRecordModalOpen(false)}
-        onSubmit={handleAddRecord}
-        records={records}
-      />
-      <DetailViewModal
-        open={recordDetailOpen}
-        onClose={() => setRecordDetailOpen(false)}
-        recordIndex={recordDetail}
-      />
-    </div>
-  ) : "You do not have access to this view") : null;
+  const handleDeleteRecord = async (recordIndex) => {
+    console.log("recordIndex:", recordIndex);
+    try {
+      const response = await axios.post("http://localhost:4000/deleteRecord", {
+        appId: id,
+        tableView: tv,
+        rowIndex: recordIndex,
+        title: tView.view.dsurl.split("/")[5],
+      });
+      if (response.data) {
+        setRecords((prevRecords) =>
+          prevRecords.filter((_, index) => index !== recordIndex)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setDeleteModalOpen(false);
+  };
+
+  return tViewSet && isARoleSet ? (
+    isARole ? (
+      <div>
+        <div>TVDetail</div>
+        <button onClick={goBack}>back</button>
+        <br />
+        <b>Name:</b> {tView.view.name}
+        <br />
+        <b>Table:</b> {tView.view.table}
+        <br />
+        <b>View Type:</b> {tView.view.viewType}
+        <br />
+        <b>Allowed Actions:</b> {allowed}
+        <br />
+        <b>Roles (Separated by /) :</b> {roles}
+        <br />
+        <b>Columns (Separated by /) :</b> {columns}
+        <br />
+        <b>Filter Column :</b> {tView.filter.name}
+        <br />
+        <b>User Filter Column :</b> {tView.userFilter.name}
+        <br />
+        <Record
+          records={records}
+          del={del}
+          onDelete={(index) => {
+            setRecordToDelete(index);
+            setDeleteModalOpen(true);
+          }}
+          onDetailOpen={(index) => {
+            handleGetIndexRow(index);
+          }}
+        ></Record>
+        {(() => {
+          if (add) {
+            return (
+              <button onClick={() => setRecordModalOpen(true)}>
+                Add Record
+              </button>
+            );
+          } else {
+            return "";
+          }
+        })()}
+        <RecordModal
+          open={RecordModalOpen}
+          onClose={() => setRecordModalOpen(false)}
+          onSubmit={handleAddRecord}
+          records={records}
+        />
+        <DetailViewModal
+          open={recordDetailOpen}
+          onClose={() => setRecordDetailOpen(false)}
+          recordIndex={recordDetail}
+        />
+        <DeleteRecordModal
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onDelete={handleDeleteRecord}
+          recordIndex={recordToDelete}
+        />
+      </div>
+    ) : (
+      "You do not have access to this view"
+    )
+  ) : null;
 }
 
 export default TVDetail;

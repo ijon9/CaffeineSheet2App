@@ -199,8 +199,8 @@ app.post("/isUserInRolesheet", async (req, res) => {
     const rolesheetURL = app.roleSheet;
 
     const s2aOwnerEmail = "teamcaffeine03@gmail.com";
-    const currentToken = await client.getAccessToken();
-    const currentUserToken = currentToken.res.data.refresh_token;
+    // const currentToken = await client.getAccessToken();
+    const currentUserToken = userSessionid.refreshToken;
     const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
 
     const ownerToken = s2aOwnerUser.refreshToken;
@@ -227,8 +227,6 @@ app.post("/isUserInRolesheet", async (req, res) => {
       majorDimension: "COLUMNS",
       valueRenderOption: "FORMATTED_VALUE",
     });
-
-    // console.log("sheetdata: ", sheetdata.data.values);
 
     let isUser = false;
 
