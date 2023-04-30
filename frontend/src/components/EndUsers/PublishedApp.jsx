@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 function PublishedApp() {
   axios.defaults.withCredentials = true;
-  let { userEmail } = useParams();
+  let { userid } = useParams();
   const [apps, setApps] = useState([]);
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ function PublishedApp() {
   console.log(apps);
   function handleLogout() {
     axios
-      .post("http://localhost:4000/logout", { email: userEmail })
+      .post("http://localhost:4000/logout", { email: userid })
       .then((response) => {
         console.log(response);
         navigate("/login");
@@ -28,7 +28,7 @@ function PublishedApp() {
 
   return (
     <div>
-      <div>Published Apps {userEmail}</div>
+      <div>Published Apps {userid}</div>
       <button onClick={handleLogout}>Logout</button>
       <div>
         {apps.length > 0 ? (
