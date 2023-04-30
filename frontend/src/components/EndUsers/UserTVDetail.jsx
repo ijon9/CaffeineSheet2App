@@ -19,6 +19,8 @@ function TVDetail() {
   const [del, setDel] = useState(false);
   const [recordDetail, setRecordDetail] = useState(null);
   const [recordDetailOpen, setRecordDetailOpen] = useState(null);
+  const [isARole, setIsARole] = useState(false);
+  const [isARoleSet, setIsARoleSet] = useState(false);
 
   let goBack = () => {
     navigate(`/userApp/${id}`);
@@ -65,6 +67,16 @@ function TVDetail() {
       .then((response) => {
         setRecords(response.data);
       });
+    
+    axios
+      .post("http://localhost:4000/isUserARole", {
+        id: id,
+        tv: tv,
+      })
+      .then((response) => {
+        setIsARole(response.data);
+        setIsARoleSet(true);
+      });
   }, []);
 
   const handleAddRecord = async (newRow) => {
@@ -94,7 +106,7 @@ function TVDetail() {
     setRecordDetailOpen(true);
   };
 
-  return tViewSet ? (
+  return tViewSet && isARoleSet ? ( isARole ? (
     <div>
       <div>TVDetail</div>
       <button onClick={goBack}>back</button>
@@ -143,7 +155,7 @@ function TVDetail() {
         recordIndex={recordDetail}
       />
     </div>
-  ) : null;
+  ) : "You do not have access to this view") : null;
 }
 
 export default TVDetail;
