@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 function AppDetail() {
+  axios.defaults.withCredentials = true;
   let { id } = useParams();
   const [user, setUser] = useState("");
   const [app, setApp] = useState({});

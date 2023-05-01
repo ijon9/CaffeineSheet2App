@@ -179,7 +179,6 @@ function TVDetail() {
   };
 
   const handleSubmitdv = (data) => {
-    console.log(data);
     setADVM(false);
     axios
       .post("http://localhost:4000/addDetailView", {

@@ -7,6 +7,7 @@ import DetailViewModal from "../Modals/DetailViewModal";
 import DeleteRecordModal from "../Modals/DeleteRecordModal";
 
 function TVDetail() {
+  axios.defaults.withCredentials = true;
   let { id, tv } = useParams();
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
