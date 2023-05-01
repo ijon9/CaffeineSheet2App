@@ -268,9 +268,8 @@ app.post("/isUserARole", async (req, res) => {
   const tView = await TView.findOne({ _id: req.body.tv });
 
   const s2aOwnerEmail = "teamcaffeine03@gmail.com";
-  //const currentToken = await client.getAccessToken();
-  //const currentUserToken = currentToken.res.data.refresh_token;
-  const currentUserToken = userSessionid.refreshToken;
+  const currentToken = await client.getAccessToken();
+  const currentUserToken = currentToken.res.data.refresh_token;
   const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
 
   const ownerToken = s2aOwnerUser.refreshToken;
