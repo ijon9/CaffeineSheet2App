@@ -687,16 +687,23 @@ app.post("/getDetailRecord", async (req, res) => {
 });
 
 app.post("/getDisplayColumns", async (req, res) => {
-  const currUser = await User.findOne({ sessionid: req.session.id });
-  const client2 = new OAuth2Client(
-    "475033388248-6sa0d0q32qh2mg9kuvk729tbe5lu22lq.apps.googleusercontent.com",
-    "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",
-    "http://localhost:3000"
-  );
-  client2.setCredentials({ refresh_token: currUser.refreshToken });
+  const sessionid = req.session.id;
+  const currUser = await User.findOne({ sessionid });
+  const currentUserToken = currUser.refreshToken;
+  const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+  const s2aOwnerUser = await User.findOne({ email : s2aOwnerEmail });
+  const ownerToken = s2aOwnerUser.refreshToken;
+  client.setCredentials({ refresh_token : ownerToken });
+
+  // const client2 = new OAuth2Client(
+  //   "475033388248-6sa0d0q32qh2mg9kuvk729tbe5lu22lq.apps.googleusercontent.com",
+  //   "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",
+  //   "http://localhost:3000"
+  // );
+  // client2.setCredentials({ refresh_token: currUser.refreshToken });
   // console.log("Current User: ", currUser.email);
 
-  const sheets = google.sheets({ version: "v4", auth: client2 });
+  const sheets = google.sheets({ version: "v4", auth: client });
 
   const { appId, tableView } = req.body;
 
@@ -772,6 +779,7 @@ app.post("/getDisplayColumns", async (req, res) => {
     }
   }
 
+  client.setCredentials({ refresh_token : currentUserToken });
   // console.log(dataValues);
   res.send(dataValues);
 });
