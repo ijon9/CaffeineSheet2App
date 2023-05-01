@@ -28,6 +28,7 @@ function AppHome() {
         email: user,
       })
       .then((response) => {
+        console.log(response.data);
         setApplist(response.data);
       })
       .catch((error) => {
@@ -62,8 +63,8 @@ function AppHome() {
         <div>
           {applist.length > 0 ? (
             applist.map((app) => (
-              <div key={app._id}>
-                <Link to={`/app/${app._id}`}>{app.name}</Link>
+              <div key={app.appId}>
+                <Link to={`/app/${app.appId}`}>{app.appName}</Link>
               </div>
             ))
           ) : (

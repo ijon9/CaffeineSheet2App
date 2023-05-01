@@ -28,9 +28,22 @@ const client = new OAuth2Client(
   "http://localhost:3000"
 );
 
+const s2aClient = new OAuth2Client(
+  "475033388248-6sa0d0q32qh2mg9kuvk729tbe5lu22lq.apps.googleusercontent.com",
+  "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",
+  "http://localhost:3000"
+);
+
+const s2aEmail = "teamcaffeine03@gmail.com";
+
+// TOKEN MUST BE CHANGED WHEN EXPIRED
+const s2aRefreshToken =
+  "1//0dIyb_9ZGTwMoCgYIARAAGA0SNwF-L9Irmuhw0gI36mCU6iNu9kr2qzUTp12Lv_wr3fNAMSvJg01bBYpXW654KzBuMtgRa_U_fPM";
+
+s2aClient.setCredentials({ refresh_token: s2aRefreshToken });
+
 // cores required for other domains to call our api urls
 const cors = require("cors");
-const { table } = require("console");
 
 // call to connect to our database
 connectDB();
@@ -148,10 +161,57 @@ app.post("/addApp", async (req, res) => {
   res.send("Added app");
 });
 
+async function devInRoleSheet(rolesheet, email) {
+  const sheets = google.sheets({ version: "v4", auth: s2aClient });
+  const spreadsheetId = rolesheet.split("/")[5];
+  const gid = parseInt(rolesheet.split("gid=")[1]);
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let title = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      title = d.properties.title;
+    }
+  }
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A:Z`,
+    majorDimension: "COLUMNS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+  const developers = sheetdata.data.values[0];
+  for (let i = 1; i < developers.length; i++) {
+    if (email == developers[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 app.post("/getApps", async (req, res) => {
-  const email = req.body.email;
-  const apps = await App.find({ creator: email });
-  res.send(apps);
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+
+  let email = userSessionid.email;
+  let listOfApps = [];
+  const apps = await App.find({});
+
+  for (let app of apps) {
+    if (app.creator == email) {
+      listOfApps.push({ appName: app.name, appId: app._id });
+    } else {
+      const rolesheet = app.roleSheet;
+      const inRoleSheet = await devInRoleSheet(rolesheet, email);
+      if (inRoleSheet) {
+        listOfApps.push({ appName: app.name, appId: app._id });
+      }
+    }
+  }
+  res.send(listOfApps);
 });
 
 app.get("/getPublishedApp", async (req, res) => {
@@ -307,7 +367,7 @@ app.post("/isUserARole", async (req, res) => {
 
   // Set the credentials back to the current user's token
   client.setCredentials({ refresh_token: currentUserToken });
-  res.send({isARole : isARole, setOfRoles : setOfRoles });
+  res.send({ isARole: isARole, setOfRoles: setOfRoles });
 });
 
 app.post("/addTableView", async (req, res) => {
@@ -450,12 +510,12 @@ app.post("/getDetailView", async (req, res) => {
 
 app.post("/getFirstDetailView", async (req, res) => {
   const setOfRoles = req.body.setOfRoles;
-  const currApp = await App.findOne({ _id : req.body.id });
+  const currApp = await App.findOne({ _id: req.body.id });
   var dView = {};
   var found = false;
-  for(let curr of currApp.dViews) {
-    for(let role of setOfRoles) {
-      if(!found && curr.view.roles.includes(role)) {
+  for (let curr of currApp.dViews) {
+    for (let role of setOfRoles) {
+      if (!found && curr.view.roles.includes(role)) {
         dView = curr;
         found = true;
       }
@@ -672,16 +732,16 @@ app.post("/getDataSources", async (req, res) => {
 
 app.post("/getDetailRecord", async (req, res) => {
   const { index, appId, tableView, records, dView } = req.body;
-  if(dView.view === undefined) res.send({heading:[], row:[]});
+  if (dView.view === undefined) res.send({ heading: [], row: [] });
   else {
     var colNames = [];
-    for(let col of dView.view.columns) {
+    for (let col of dView.view.columns) {
       colNames.push(col.name);
     }
     var heading = [];
     var row = [];
-    for(var i=0; i<records[0].length; i++) {
-      if(colNames.includes(records[0][i])) {
+    for (var i = 0; i < records[0].length; i++) {
+      if (colNames.includes(records[0][i])) {
         heading.push(records[0][i]);
         row.push(records[index][i]);
       }
@@ -691,7 +751,7 @@ app.post("/getDetailRecord", async (req, res) => {
       row: row,
     });
   }
-  
+
   // const sheets = google.sheets({ version: "v4", auth: client });
 
   // const currview = await TView.findOne({ _id: tableView });
@@ -724,7 +784,6 @@ app.post("/getDetailRecord", async (req, res) => {
   // console.log(records[0][0]);
   // console.log(records[index]);
 
-
   // res.send({
   //   heading: records[0],
   //   row: records[index],
@@ -737,9 +796,9 @@ app.post("/getDisplayColumns", async (req, res) => {
   const currUser = await User.findOne({ sessionid });
   const currentUserToken = currUser.refreshToken;
   const s2aOwnerEmail = "teamcaffeine03@gmail.com";
-  const s2aOwnerUser = await User.findOne({ email : s2aOwnerEmail });
+  const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
   const ownerToken = s2aOwnerUser.refreshToken;
-  client.setCredentials({ refresh_token : ownerToken });
+  client.setCredentials({ refresh_token: ownerToken });
 
   // const client2 = new OAuth2Client(
   //   "475033388248-6sa0d0q32qh2mg9kuvk729tbe5lu22lq.apps.googleusercontent.com",
@@ -780,7 +839,9 @@ app.post("/getDisplayColumns", async (req, res) => {
     majorDimension: "COLUMNS",
     valueRenderOption: "FORMATTED_VALUE",
   });
-  var allCols = sheetdata.data.values[0].map((_, colIndex) => sheetdata.data.values.map((row) => row[colIndex]));
+  var allCols = sheetdata.data.values[0].map((_, colIndex) =>
+    sheetdata.data.values.map((row) => row[colIndex])
+  );
   // console.log(allCols);
   var temp = [];
   var filter = [];
@@ -837,9 +898,9 @@ app.post("/getDisplayColumns", async (req, res) => {
       allCols2 = temp3;
     }
   }
-  client.setCredentials({ refresh_token : currentUserToken });
+  client.setCredentials({ refresh_token: currentUserToken });
   // console.log(dataValues);
-  res.send( {allCols : allCols2, dataValues : dataValues } );
+  res.send({ allCols: allCols2, dataValues: dataValues });
 });
 
 app.post("/addRecord", async (req, res) => {
