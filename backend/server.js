@@ -781,6 +781,7 @@ app.post("/getDisplayColumns", async (req, res) => {
     valueRenderOption: "FORMATTED_VALUE",
   });
   var allCols = sheetdata.data.values[0].map((_, colIndex) => sheetdata.data.values.map((row) => row[colIndex]));
+  // console.log(allCols);
   var temp = [];
   var filter = [];
   var userFilter = [];
@@ -799,6 +800,7 @@ app.post("/getDisplayColumns", async (req, res) => {
   var allCols2 = [];
   if (temp.length != 0) {
     dataValues = temp[0].map((_, colIndex) => temp.map((row) => row[colIndex]));
+    allCols2 = allCols;
     // Check filter and userFilter
     if (filter.length > 0 && userFilter.length > 0) {
       var temp2 = [dataValues[0]];

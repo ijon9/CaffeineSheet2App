@@ -72,6 +72,7 @@ function TVDetail() {
         tableView: tv,
       })
       .then((response) => {
+        console.log(response.data);
         setRecords(response.data.dataValues);
         setAllRecords(response.data.allCols);
       });
