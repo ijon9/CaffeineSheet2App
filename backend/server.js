@@ -672,18 +672,26 @@ app.post("/getDataSources", async (req, res) => {
 
 app.post("/getDetailRecord", async (req, res) => {
   const { index, appId, tableView, records, dView } = req.body;
-  var colNames = [];
-  for(let col of dView.view.columns) {
-    colNames.push(col.name);
-  }
-  var heading = [];
-  var row = [];
-  for(var i=0; i<records[0].length; i++) {
-    if(colNames.includes(records[0][i])) {
-      heading.push(records[0][i]);
-      row.push(records[index][i]);
+  if(dView.view === undefined) res.send({heading:[], row:[]});
+  else {
+    var colNames = [];
+    for(let col of dView.view.columns) {
+      colNames.push(col.name);
     }
+    var heading = [];
+    var row = [];
+    for(var i=0; i<records[0].length; i++) {
+      if(colNames.includes(records[0][i])) {
+        heading.push(records[0][i]);
+        row.push(records[index][i]);
+      }
+    }
+    res.send({
+      heading: heading,
+      row: row,
+    });
   }
+  
   // const sheets = google.sheets({ version: "v4", auth: client });
 
   // const currview = await TView.findOne({ _id: tableView });
@@ -721,11 +729,6 @@ app.post("/getDetailRecord", async (req, res) => {
   //   heading: records[0],
   //   row: records[index],
   // });
-
-  res.send({
-    heading: heading,
-    row: row,
-  });
 });
 
 app.post("/getDisplayColumns", async (req, res) => {
