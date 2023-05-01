@@ -11,8 +11,11 @@ function TVDetail() {
   let { id, tv } = useParams();
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
+  const [allRecords, setAllRecords] = useState([]);
   const [tView, setTView] = useState({});
+  const [dView, setDView] = useState({});
   const [roles, setRoles] = useState("");
+  const [setOfRoles, setSetOfRoles] = useState([]);
   const [columns, setColumns] = useState("");
   const [tViewSet, setTViewSet] = useState(false);
   const [RecordModalOpen, setRecordModalOpen] = useState(false);
@@ -69,8 +72,8 @@ function TVDetail() {
         tableView: tv,
       })
       .then((response) => {
-        setRecords(response.data);
-        // console.log(response.data);
+        setRecords(response.data.dataValues);
+        setAllRecords(response.data.allCols);
       });
 
     axios
@@ -79,9 +82,21 @@ function TVDetail() {
         tv: tv,
       })
       .then((response) => {
-        setIsARole(response.data);
+        setIsARole(response.data.isARole);
+        setSetOfRoles(response.data.setOfRoles);
+
+        axios
+        .post("http://localhost:4000/getFirstDetailView", {
+          id: id,
+          setOfRoles : response.data.setOfRoles
+        })
+        .then((response) => {
+          setDView(response.data);
+        });
+
         setIsARoleSet(true);
       });
+
   }, []);
 
   const handleAddRecord = async (newRow) => {
@@ -104,10 +119,10 @@ function TVDetail() {
     const getRow = await axios.post("http://localhost:4000/getDetailRecord", {
       appId: id,
       index: index,
-      records: records,
+      records: allRecords,
       tableView: tv,
+      dView: dView
     });
-
     setRecordDetail(getRow.data);
     setRecordDetailOpen(true);
   };
@@ -165,6 +180,7 @@ function TVDetail() {
           onDetailOpen={(index) => {
             handleGetIndexRow(index);
           }}
+          endUser={true}
         ></Record>
         {(() => {
           if (add) {

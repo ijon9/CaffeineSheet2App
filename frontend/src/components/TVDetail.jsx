@@ -69,7 +69,7 @@ function TVDetail() {
         tableView: tv,
       })
       .then((response) => {
-        setRecords(response.data);
+        setRecords(response.data.dataValues);
       });
 
     axios
@@ -372,6 +372,7 @@ function TVDetail() {
           handleGetIndexRow(index);
         }}
         del={del}
+        endUser={false}
       />
       {(() => {
         if (add) {

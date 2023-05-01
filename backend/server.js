@@ -256,7 +256,6 @@ app.post("/isUserInRolesheet", async (req, res) => {
 });
 
 app.post("/isUserARole", async (req, res) => {
-  console.log("Going in rolesheet");
   const sessionid = req.session.id;
   const userSessionid = await User.findOne({ sessionid });
   const email = userSessionid.email;
@@ -298,15 +297,17 @@ app.post("/isUserARole", async (req, res) => {
   });
 
   var isARole = false;
+  var setOfRoles = [];
   for (let col of sheetdata.data.values) {
     if (tView.view.roles.includes(col[0]) && col.includes(email)) {
       isARole = true;
+      setOfRoles.push(col[0]);
     }
   }
 
   // Set the credentials back to the current user's token
   client.setCredentials({ refresh_token: currentUserToken });
-  res.send(isARole);
+  res.send({isARole : isARole, setOfRoles : setOfRoles });
 });
 
 app.post("/addTableView", async (req, res) => {
@@ -444,6 +445,22 @@ app.post("/getTableView", async (req, res) => {
 app.post("/getDetailView", async (req, res) => {
   const dViewID = req.body.dv;
   const dView = await DView.findOne({ _id: dViewID });
+  res.send(dView);
+});
+
+app.post("/getFirstDetailView", async (req, res) => {
+  const setOfRoles = req.body.setOfRoles;
+  const currApp = await App.findOne({ _id : req.body.id });
+  var dView = {};
+  var found = false;
+  for(let curr of currApp.dViews) {
+    for(let role of setOfRoles) {
+      if(!found && curr.view.roles.includes(role)) {
+        dView = curr;
+        found = true;
+      }
+    }
+  }
   res.send(dView);
 });
 
@@ -654,8 +671,19 @@ app.post("/getDataSources", async (req, res) => {
 });
 
 app.post("/getDetailRecord", async (req, res) => {
-  const { index, appId, tableView, records } = req.body;
-
+  const { index, appId, tableView, records, dView } = req.body;
+  var colNames = [];
+  for(let col of dView.view.columns) {
+    colNames.push(col.name);
+  }
+  var heading = [];
+  var row = [];
+  for(var i=0; i<records[0].length; i++) {
+    if(colNames.includes(records[0][i])) {
+      heading.push(records[0][i]);
+      row.push(records[index][i]);
+    }
+  }
   // const sheets = google.sheets({ version: "v4", auth: client });
 
   // const currview = await TView.findOne({ _id: tableView });
@@ -688,9 +716,15 @@ app.post("/getDetailRecord", async (req, res) => {
   // console.log(records[0][0]);
   // console.log(records[index]);
 
+
+  // res.send({
+  //   heading: records[0],
+  //   row: records[index],
+  // });
+
   res.send({
-    heading: records[0],
-    row: records[index],
+    heading: heading,
+    row: row,
   });
 });
 
@@ -743,6 +777,7 @@ app.post("/getDisplayColumns", async (req, res) => {
     majorDimension: "COLUMNS",
     valueRenderOption: "FORMATTED_VALUE",
   });
+  var allCols = sheetdata.data.values[0].map((_, colIndex) => sheetdata.data.values.map((row) => row[colIndex]));
   var temp = [];
   var filter = [];
   var userFilter = [];
@@ -758,39 +793,48 @@ app.post("/getDisplayColumns", async (req, res) => {
     }
   }
   var dataValues = [];
+  var allCols2 = [];
   if (temp.length != 0) {
     dataValues = temp[0].map((_, colIndex) => temp.map((row) => row[colIndex]));
     // Check filter and userFilter
     if (filter.length > 0 && userFilter.length > 0) {
       var temp2 = [dataValues[0]];
+      var temp3 = [allCols[0]];
       for (var i = 1; i < dataValues.length; i++) {
         if (filter[i] === "TRUE" && userFilter[i] === currUser.email) {
           temp2.push(dataValues[i]);
+          temp3.push(allCols[i]);
         }
       }
       dataValues = temp2;
+      allCols2 = temp3;
     } else if (filter.length > 0) {
       var temp2 = [dataValues[0]];
+      var temp3 = [allCols[0]];
       for (var i = 1; i < dataValues.length; i++) {
         if (filter[i] === "TRUE") {
           temp2.push(dataValues[i]);
+          temp3.push(allCols[i]);
         }
       }
       dataValues = temp2;
+      allCols2 = temp3;
     } else if (userFilter.length > 0) {
       var temp2 = [dataValues[0]];
+      var temp3 = [allCols[0]];
       for (var i = 1; i < dataValues.length; i++) {
         if (userFilter[i] === currUser.email) {
           temp2.push(dataValues[i]);
+          temp3.push(allCols[i]);
         }
       }
       dataValues = temp2;
+      allCols2 = temp3;
     }
   }
-
   client.setCredentials({ refresh_token : currentUserToken });
   // console.log(dataValues);
-  res.send(dataValues);
+  res.send( {allCols : allCols2, dataValues : dataValues } );
 });
 
 app.post("/addRecord", async (req, res) => {

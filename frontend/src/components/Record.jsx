@@ -1,6 +1,6 @@
 import React from "react";
 
-function Record({ records, onDelete, onDetailOpen, del }) {
+function Record({ records, onDelete, onDetailOpen, del, endUser }) {
   return (
     <div>
       <table border="2px">
@@ -22,7 +22,7 @@ function Record({ records, onDelete, onDetailOpen, del }) {
                       return "";
                     }
                   })()}
-                  <button onClick={() => onDetailOpen(index)}> Detail </button>
+                  {(endUser) ? <button onClick={() => onDetailOpen(index)}> Detail </button> : "" }
                 </td>
               )}
             </tr>
