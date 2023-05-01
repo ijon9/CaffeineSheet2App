@@ -695,6 +695,7 @@ app.post("/getDetailRecord", async (req, res) => {
 });
 
 app.post("/getDisplayColumns", async (req, res) => {
+  // Now just share with teamcaffein03
   const sessionid = req.session.id;
   const currUser = await User.findOne({ sessionid });
   const currentUserToken = currUser.refreshToken;
