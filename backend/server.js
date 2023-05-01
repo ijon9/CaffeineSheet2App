@@ -268,8 +268,9 @@ app.post("/isUserARole", async (req, res) => {
   const tView = await TView.findOne({ _id: req.body.tv });
 
   const s2aOwnerEmail = "teamcaffeine03@gmail.com";
-  const currentToken = await client.getAccessToken();
-  const currentUserToken = currentToken.res.data.refresh_token;
+  //const currentToken = await client.getAccessToken();
+  //const currentUserToken = currentToken.res.data.refresh_token;
+  const currentUserToken = userSessionid.refreshToken;
   const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
 
   const ownerToken = s2aOwnerUser.refreshToken;
@@ -381,8 +382,8 @@ app.post("/addTableView", async (req, res) => {
 app.post("/addDetailView", async (req, res) => {
   var { name, roles, editFilter, editable } = req.body.data.inputs;
   const colArray = req.body.data.colArr;
-  const currApp = await App.findOne({ _id : req.body.appId });
-  const currTView = await TView.findOne({ _id : req.body.tv });
+  const currApp = await App.findOne({ _id: req.body.appId });
+  const currTView = await TView.findOne({ _id: req.body.tv });
 
   roles = roles === undefined ? "" : roles;
   editable = editable === undefined ? "" : editable;
@@ -415,19 +416,23 @@ app.post("/addDetailView", async (req, res) => {
     view: view,
     editFilter: editFilter,
     editableColumns: editable.split("/"),
-    tView : req.body.tv
+    tView: req.body.tv,
   });
   await dview.save();
 
   let dviews = currApp.dViews;
   dviews.push(dview);
-  await App.findOneAndUpdate({ _id: req.body.appId }, { dViews: dviews }, { new: true });
+  await App.findOneAndUpdate(
+    { _id: req.body.appId },
+    { dViews: dviews },
+    { new: true }
+  );
   res.send("DView added");
 });
 
 app.post("/getDViews", async (req, res) => {
   const tViewID = req.body.tableView;
-  const dViews = await DView.find({ tView : tViewID })
+  const dViews = await DView.find({ tView: tViewID });
   res.send(dViews);
 });
 
@@ -501,7 +506,11 @@ app.post("/editDetailView", async (req, res) => {
   await App.findOneAndUpdate({ _id: appId }, { dViews: dViews });
   await DView.findOneAndUpdate(
     { _id: dView._id },
-    { view: dView.view, editFilter : dView.editFilter, editableColumns : dView.editableColumns }
+    {
+      view: dView.view,
+      editFilter: dView.editFilter,
+      editableColumns: dView.editableColumns,
+    }
   );
   res.send("Edited Detail View");
 });
