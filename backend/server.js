@@ -378,10 +378,69 @@ app.post("/addTableView", async (req, res) => {
   res.send(tableModal);
 });
 
+app.post("/addDetailView", async (req, res) => {
+  var { name, roles, editFilter, editable } = req.body.data.inputs;
+  const colArray = req.body.data.colArr;
+  const currApp = await App.findOne({ _id : req.body.appId });
+  const currTView = await TView.findOne({ _id : req.body.tv });
+
+  roles = roles === undefined ? "" : roles;
+  editable = editable === undefined ? "" : editable;
+
+  let selectedDS;
+  for (let ds of currApp.dataSources) {
+    if (ds.url == currTView.view.dsurl) {
+      selectedDS = ds;
+    }
+  }
+
+  var cols = [];
+  for (var i = 0; i < selectedDS.columns.length; i++) {
+    if (colArray[i]) {
+      cols.push(selectedDS.columns[i]);
+    }
+  }
+
+  let view = new View({
+    name: name,
+    roles: roles.split("/"),
+    columns: cols,
+    allColumns: selectedDS.columns,
+    viewType: "detail",
+    dsurl: selectedDS.url,
+    allowedActions: [true, true, true],
+  });
+  await view.save();
+  let dview = DView({
+    view: view,
+    editFilter: editFilter,
+    editableColumns: editable.split("/"),
+    tView : req.body.tv
+  });
+  await dview.save();
+
+  let dviews = currApp.dViews;
+  dviews.push(dview);
+  await App.findOneAndUpdate({ _id: req.body.appId }, { dViews: dviews }, { new: true });
+  res.send("DView added");
+});
+
+app.post("/getDViews", async (req, res) => {
+  const tViewID = req.body.tableView;
+  const dViews = await DView.find({ tView : tViewID })
+  res.send(dViews);
+});
+
 app.post("/getTableView", async (req, res) => {
   const tViewID = req.body.tableView;
   const tView = await TView.findOne({ _id: tViewID });
   res.send(tView);
+});
+
+app.post("/getDetailView", async (req, res) => {
+  const dViewID = req.body.dv;
+  const dView = await DView.findOne({ _id: dViewID });
+  res.send(dView);
 });
 
 app.post("/editTableView", async (req, res) => {
@@ -404,7 +463,7 @@ app.post("/editTableView", async (req, res) => {
   var tViews = app.tViews;
   for (var i = 0; i < tViews.length; i++) {
     if (tViews[i]._id.toString() === tView._id.toString()) {
-      tViews[i].view = tView.view;
+      tViews[i] = tView;
     }
   }
   await App.findOneAndUpdate({ _id: appId }, { tViews: tViews });
@@ -413,6 +472,38 @@ app.post("/editTableView", async (req, res) => {
     { view: tView.view, filter: tView.filter, userFilter: tView.userFilter }
   );
   res.send("Edited Table View");
+});
+
+app.post("/editDetailView", async (req, res) => {
+  const { appId, dView, roles, colArray, editable } = req.body;
+  const app = await App.findOne({ _id: appId });
+  dView.view.roles = roles.split("/");
+  dView.editableColumns = editable.split("/");
+  let selectedDS;
+  for (let ds of app.dataSources) {
+    if (ds.url === dView.view.dsurl) {
+      selectedDS = ds;
+    }
+  }
+  var cols = [];
+  for (var i = 0; i < selectedDS.columns.length; i++) {
+    if (colArray[i]) {
+      cols.push(selectedDS.columns[i]);
+    }
+  }
+  dView.view.columns = cols;
+  var dViews = app.dViews;
+  for (var i = 0; i < dViews.length; i++) {
+    if (dViews[i]._id.toString() === dView._id.toString()) {
+      dViews[i] = dView;
+    }
+  }
+  await App.findOneAndUpdate({ _id: appId }, { dViews: dViews });
+  await DView.findOneAndUpdate(
+    { _id: dView._id },
+    { view: dView.view, editFilter : dView.editFilter, editableColumns : dView.editableColumns }
+  );
+  res.send("Edited Detail View");
 });
 
 app.post("/getTableViews", async (req, res) => {

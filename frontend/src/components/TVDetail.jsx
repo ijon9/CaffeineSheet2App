@@ -5,6 +5,7 @@ import RecordModal from "./Modals/RecordModal";
 import DeleteRecordModal from "./Modals/DeleteRecordModal";
 import axios from "axios";
 import DetailViewModal from "./Modals/DetailViewModal";
+import AddDetailViewModal from "./Modals/AddDetailViewModal";
 
 function TVDetail() {
   axios.defaults.withCredentials = true;
@@ -22,6 +23,8 @@ function TVDetail() {
   const [recordDetailOpen, setRecordDetailOpen] = useState(null);
   const [add, setAdd] = useState(false);
   const [del, setDel] = useState(false);
+  const [addDVM, setADVM] = useState(false);
+  const [dViews, setDViews] = useState([]);
 
   let goBack = () => {
     navigate(`/app/${id}`);
@@ -68,6 +71,16 @@ function TVDetail() {
       .then((response) => {
         setRecords(response.data);
       });
+
+    axios
+      .post("http://localhost:4000/getDViews", {
+        appId: id,
+        tableView: tv,
+      })
+      .then((response) => {
+        setDViews(response.data);
+      });
+    
   }, []);
 
   const handleChange = (event) => {
@@ -163,6 +176,20 @@ function TVDetail() {
 
     setRecordDetail(getRow.data);
     setRecordDetailOpen(true);
+  };
+
+  const handleSubmitdv = (data) => {
+    console.log(data);
+    setADVM(false);
+    axios
+      .post("http://localhost:4000/addDetailView", {
+        appId: id,
+        tv: tv,
+        data: data,
+      })
+      .then((response) => {
+        window.location.reload(false)
+      });
   };
 
   return tViewSet ? (
@@ -307,7 +334,35 @@ function TVDetail() {
         />
         <br />
         <button type="submit">save edit</button>
-      </form>
+      </form><br/>
+      <div>
+        <b>Detail Views </b>
+        <button
+          onClick={() => {
+            setADVM(true);
+          }}
+        >
+          Add
+        </button><br/>
+        {dViews.length > 0 ? (
+            dViews.map((dv) => (
+              <div key={dv._id}>
+                {/* {dv.view.name} */}
+                <Link to={`/app/${id}/detail/${dv._id}`}>{dv.view.name}</Link>
+              </div>
+            ))
+          ) : (
+            <div>No Detail Views</div>
+          )} <br/>
+      </div>
+      <AddDetailViewModal
+        open={addDVM}
+        closedv={() => setADVM(false)}
+        onSubmitdv={handleSubmitdv}
+        allColumns={tView.view.allColumns}
+      ></AddDetailViewModal>
+
+      <b>Records</b>
       <Record
         records={records}
         onDelete={(index) => {
