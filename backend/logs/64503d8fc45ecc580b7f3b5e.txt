@@ -1,0 +1,6 @@
+testapp log
+teamcaffeine03@gmail.com created testapp app
+teamcaffeine03@gmail.com created students datasource
+teamcaffeine03@gmail.com created scores datasource
+teamcaffeine03@gmail.com created viewStudent2 Table View
+teamcaffeine03@gmail.com created dstest Detail View

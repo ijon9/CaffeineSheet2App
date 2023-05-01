@@ -7,8 +7,9 @@ const View = require("./models/viewModel");
 const DView = require("./models/dViewModel");
 const TView = require("./models/tViewModel");
 const DataSource = require("./models/dataSourceModel");
-
+const fs = require("fs");
 const path = require("path");
+
 const { OAuth2Client } = require("google-auth-library");
 const process = require("process");
 const { authenticate } = require("@google-cloud/local-auth");
@@ -158,6 +159,25 @@ app.post("/addApp", async (req, res) => {
     published: publish === "yes" ? true : false,
   });
   await createdapp.save();
+
+  fs.writeFile(
+    `./logs/${createdapp._id}.txt`,
+    `${createdapp.name} log\n`,
+    function (err) {
+      if (err) throw err;
+      console.log("Results Received");
+    }
+  );
+
+  fs.appendFile(
+    `./logs/${createdapp._id}.txt`,
+    `${creator} created ${name} app\n`,
+    function (err) {
+      if (err) throw err;
+      console.log("Data appended to file");
+    }
+  );
+
   res.send("Added app");
 });
 
@@ -436,6 +456,20 @@ app.post("/addTableView", async (req, res) => {
   let tables = currApp.tViews;
   tables.push(tableModal);
   await App.findOneAndUpdate({ _id: appId }, { tViews: tables }, { new: true });
+
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  let email = userSessionid.email;
+
+  fs.appendFile(
+    `./logs/${appId}.txt`,
+    `${email} created ${name} Table View\n`,
+    function (err) {
+      if (err) throw err;
+      console.log("Data appended to file");
+    }
+  );
+
   res.send(tableModal);
 });
 
@@ -487,6 +521,20 @@ app.post("/addDetailView", async (req, res) => {
     { dViews: dviews },
     { new: true }
   );
+
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  let email = userSessionid.email;
+
+  fs.appendFile(
+    `./logs/${req.body.appId}.txt`,
+    `${email} created ${name} Detail View\n`,
+    function (err) {
+      if (err) throw err;
+      console.log("Data appended to file");
+    }
+  );
+
   res.send("DView added");
 });
 
@@ -670,6 +718,20 @@ app.post("/addDataSource", async (req, res) => {
     dSources.push(dataSource);
     await App.findOneAndUpdate({ _id: appId }, { dataSources: dSources });
   }
+
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  let email = userSessionid.email;
+
+  fs.appendFile(
+    `./logs/${appId}.txt`,
+    `${email} created ${name} datasource\n`,
+    function (err) {
+      if (err) throw err;
+      console.log("Data appended to file");
+    }
+  );
+
   res.send(dataSource);
 });
 
