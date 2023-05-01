@@ -1017,6 +1017,43 @@ function arraysEqual(a, b) {
   // The arrays are equal
   return true;
 }
+app.post("/editRecord", async (req, res) => {
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const { appId, tableView, updatedRow, recordIndex, title } = req.body;
+
+  const currview = await TView.findOne({ _id: tableView });
+  const spreadsheetId = currview.view.dsurl.split("/")[5];
+  const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
+
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let sheetTitle = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      sheetTitle = d.properties.title;
+    }
+  }
+
+  console.log("updated row:", updatedRow);
+  console.log("recordIndex:", recordIndex);
+
+  try {
+    const response = await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `'${sheetTitle}'!A${recordIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        values: [updatedRow],
+      },
+    });
+    res.send(response.data);
+  } catch (error) {
+    console.log("edit record error:", error);
+  }
+});
 
 app.post("/deleteRecord", async (req, res) => {
   let { records, rowIndex, tableView, appId } = req.body;

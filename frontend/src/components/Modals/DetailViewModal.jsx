@@ -1,5 +1,30 @@
 import React from "react";
-function DetailViewModal({ open, onClose, recordIndex }) {
+import { useState,useEffect } from "react";
+
+function DetailViewModal({ open, onClose, recordIndex, onSubmit }) {
+  const [editedRecord, setEditedRecord] = useState([]);
+
+  useEffect(() => {
+    if (recordIndex) {
+      setEditedRecord(recordIndex.row);
+    }
+  }, [recordIndex]);
+
+  const handleInputChange = (event, index) => {
+    const { value } = event.target;
+    const newEditedRecord = [...editedRecord];
+    newEditedRecord[index] = value;
+    setEditedRecord(newEditedRecord);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (recordIndex) {
+      onSubmit(editedRecord);
+    }
+    onClose();
+  };
+
   if (!open) {
     return null;
   } else {
@@ -8,12 +33,22 @@ function DetailViewModal({ open, onClose, recordIndex }) {
         <div id="overlay" />
         <div id="delete_record_modal">
           <h2>Detail View</h2>
-          {recordIndex.heading.map((headings, index) => (
-            <div key={headings}>
-              {headings} : {recordIndex.row[index]}
-            </div>
-          ))}
-          <button onClick={onClose}>Cancel</button>
+          <form onSubmit={handleSubmit}>
+            {recordIndex.heading.map((headings, index) => (
+              <div key={headings}>
+                <label>
+                  {headings}:
+                  <input
+                    type="text"
+                    value={editedRecord[index] || ""}
+                    onChange={(event) => handleInputChange(event, index)}
+                  />
+                </label>
+              </div>
+            ))}
+            <button type="submit">Save</button>
+            <button onClick={onClose}>Cancel</button>
+          </form>
         </div>
       </>
     );

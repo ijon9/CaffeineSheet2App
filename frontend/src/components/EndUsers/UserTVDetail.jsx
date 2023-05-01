@@ -28,6 +28,7 @@ function TVDetail() {
   const [isARoleSet, setIsARoleSet] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
+  const [recordIndex, setRecordIndex] = useState("");
 
   let goBack = () => {
     navigate(`/userApp/${id}`);
@@ -125,7 +126,29 @@ function TVDetail() {
       dView: dView
     });
     setRecordDetail(getRow.data);
+    setRecordIndex(index);
     setRecordDetailOpen(true);
+  };
+  
+  const handleEditRecord = async (updatedRow) => {
+    try {
+      const response = await axios.post("http://localhost:4000/editRecord", {
+        appId: id,
+        tableView: tv,
+        updatedRow: updatedRow,
+        recordIndex: recordIndex,
+        title: tView.view.dsurl.split("/")[5],
+      });
+      if (response.data) {
+        const updatedRecords = records.map((record, index) =>
+          index === recordIndex ? updatedRow : record
+        );
+        setRecords(updatedRecords);
+        
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDeleteRecord = async (recordIndex) => {
@@ -148,6 +171,7 @@ function TVDetail() {
     }
     setDeleteModalOpen(false);
   };
+
 
   return tViewSet && isARoleSet ? (
     isARole ? (
@@ -204,6 +228,7 @@ function TVDetail() {
           open={recordDetailOpen}
           onClose={() => setRecordDetailOpen(false)}
           recordIndex={recordDetail}
+          onSubmit={handleEditRecord}
         />
         <DeleteRecordModal
           open={deleteModalOpen}
