@@ -126,6 +126,15 @@ function AppDetail() {
         <button type="submit">save edit</button>
       </form>
       <div>
+        <button
+          onClick={() => {
+            navigate(`/logs/${id}`);
+          }}
+        >
+          Logs
+        </button>
+      </div>
+      <div>
         <button onClick={handleBackToApp}>Back to apps</button>
       </div>
       <div className="left">

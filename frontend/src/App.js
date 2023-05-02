@@ -13,6 +13,7 @@ import DVDetail from "./components/DVDetail";
 import PublishedApp from "./components/EndUsers/PublishedApp";
 import UserAppDetail from "./components/EndUsers/UserAppDetail";
 import UserTVDetail from "./components/EndUsers/UserTVDetail";
+import Logs from "./components/Logs";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/user/:userid" element={<PublishedApp />} />
         <Route path="/userApp/:id" element={<UserAppDetail />} />
         <Route path="/endUser/app/:id/table/:tv" element={<UserTVDetail />} />
+        <Route path="/logs/:id" element={<Logs />} />
       </Routes>
     </BrowserRouter>
   );

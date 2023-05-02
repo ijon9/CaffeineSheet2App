@@ -78,6 +78,24 @@ const isAuth = (req, res, next) => {
   }
 };
 
+app.get("/logs/:id", async (req, res) => {
+  const appID = req.params.id;
+  console.log(appID);
+  const pathToFile = `./logs/${appID}.txt`;
+  let dataToRead = "";
+  try {
+    const data = fs.readFileSync(pathToFile, "utf8");
+    dataToRead = data;
+  } catch (err) {
+    console.error(err);
+  }
+
+  parseData = dataToRead.split("\n");
+
+  console.log(parseData);
+  res.send(parseData);
+});
+
 app.get("/getUser", isAuth, async (req, res) => {
   const sessionid = req.session.id;
   const userSessionid = await User.findOne({ sessionid });
