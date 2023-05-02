@@ -190,9 +190,18 @@ function TVDetail() {
         title: tView.view.dsurl.split("/")[5],
       });
       if (response.data) {
-        setRecords((prevRecords) =>
-          prevRecords.filter((_, index) => index !== recordIndex)
-        );
+        // setRecords((prevRecords) =>
+        //   prevRecords.filter((_, index) => index !== recordIndex)
+        // );
+        axios
+        .post("http://localhost:4000/getDisplayColumns", {
+          appId: id,
+          tableView: tv,
+        })
+        .then((response) => {
+          setRecords(response.data.dataValues);
+          setAllRecords(response.data.allCols);
+        });  
       }
     } catch (error) {
       console.log(error);
