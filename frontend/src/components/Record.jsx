@@ -14,7 +14,7 @@ function Record({ records, onDelete, onDetailOpen, del, endUser }) {
                 <td>
                   {/* <button onClick={() => onDelete(index)}>Delete</button> */}
                   {(() => {
-                    if (del) {
+                    if (del && endUser) {
                       return (
                         <button onClick={() => onDelete(index)}>Delete</button>
                       );

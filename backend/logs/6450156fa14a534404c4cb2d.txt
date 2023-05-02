@@ -1,3 +1,8 @@
 isaac.jon@stonybrook.edu deleted row 4 with data sss,4,4,4,none,TRUE,none
 isaac.jon@stonybrook.edu deleted row 4 with data changes,3,3,3,none,TRUE,none
 isaac.jon@stonybrook.edu updated SDAF,34,2,3,34,TRUE,none to  SDAF,4343,2,34
+isaac.jon@stonybrook.edu added a new row with data sdf,5,5,none,5,TRUE,none
+isaac.jon@stonybrook.edu deleted row 5 with data sdf,5,5,none,5,TRUE,none
+isaac.jon@stonybrook.edu updated SDAF,4343,2,3,34,TRUE,none to  SDAF,2,2,34
+isaac.jon@stonybrook.edu deleted row 2 with data luke.skywalker@starwars.com,85,100,97,A-,TRUE,FALSE
+isaac.jon@stonybrook.edu added a new row with data sdf,3,4,none,5,TRUE,none

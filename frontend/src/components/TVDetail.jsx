@@ -374,7 +374,7 @@ function TVDetail() {
         del={del}
         endUser={false}
       />
-      {(() => {
+      {/* {(() => {
         if (add) {
           return (
             <button onClick={() => setRecordModalOpen(true)}>Add Record</button>
@@ -382,7 +382,7 @@ function TVDetail() {
         } else {
           return "";
         }
-      })()}
+      })()} */}
 
       <RecordModal
         open={RecordModalOpen}
