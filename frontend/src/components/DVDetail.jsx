@@ -41,6 +41,7 @@ function DVDetail() {
         }
         str = str.slice(0, str.length - 1);
         setEditable(str);
+        console.log("editableColumns(DVDeetail.jsx) = ", str);
         //===================================
         var arr = [];
         var currColNames = [];

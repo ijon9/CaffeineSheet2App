@@ -1,7 +1,7 @@
 import React from "react";
 import { useState,useEffect } from "react";
 
-function DetailViewModal({ open, onClose, recordIndex, onSubmit, edit }) {
+function DetailViewModal({ open, onClose, recordIndex, onSubmit, edit, editableColumns }) {
   const [editedRecord, setEditedRecord] = useState([]);
 
   useEffect(() => {
@@ -42,6 +42,7 @@ function DetailViewModal({ open, onClose, recordIndex, onSubmit, edit }) {
                     type="text"
                     value={editedRecord[index] || ""}
                     onChange={(event) => handleInputChange(event, index)}
+                    disabled={!editableColumns.includes(headings)}
                   /> : editedRecord[index]}
                   
                 </label>
