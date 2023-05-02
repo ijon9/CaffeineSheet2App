@@ -39,7 +39,7 @@ const s2aEmail = "teamcaffeine03@gmail.com";
 
 // TOKEN MUST BE CHANGED WHEN EXPIRED
 const s2aRefreshToken =
-  "1//0dIyb_9ZGTwMoCgYIARAAGA0SNwF-L9Irmuhw0gI36mCU6iNu9kr2qzUTp12Lv_wr3fNAMSvJg01bBYpXW654KzBuMtgRa_U_fPM";
+  "1//0d407WSI5tljECgYIARAAGA0SNwF-L9Ir82mXomo2MzQ5nu-Y6IVWj0J8v_wiYz9xoU73xgejCmB0JTyWVv0e3z5vRNRZyHHRqko";
 
 s2aClient.setCredentials({ refresh_token: s2aRefreshToken });
 
@@ -1067,11 +1067,25 @@ app.post("/editRecord", async (req, res) => {
 
   const sheets = google.sheets({ version: "v4", auth: client });
   const { appId, tableView, updatedRow, recordIndex, title, records } = req.body;
-  
+
   let itemToEdit = records[recordIndex];
   const currview = await TView.findOne({ _id: tableView });
   const spreadsheetId = currview.view.dsurl.split("/")[5];
   const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
+  const currDS = await DataSource.findOne({ url : currview.view.dsurl });
+
+  let everyColKeyInd;
+  let keyColName;
+  for(var i=0; i<currDS.columns.length; i++) {
+    if(currDS.columns[i].key) {
+      everyColKeyInd = i;
+      keyColName = currDS.columns[i].name;
+    }
+  }
+  let recordsKeyInd;
+  for(var i=0; i<records[0].length; i++) {
+    if(records[0][i] === keyColName) recordsKeyInd = i;
+  }
 
   const { data } = await sheets.spreadsheets.get({
     spreadsheetId,
@@ -1097,7 +1111,8 @@ app.post("/editRecord", async (req, res) => {
 
   let indexToEdit;
   for (let i = 0; i < sheetdata.data.values.length; i++) {
-    let result = arraysEqual(itemToEdit, sheetdata.data.values[i]);
+    let result = sheetdata.data.values[i][everyColKeyInd] === itemToEdit[recordsKeyInd];
+    // let result = arraysEqual(itemToEdit, sheetdata.data.values[i]);
     if (result) {
       indexToEdit = i;
       break;
@@ -1143,6 +1158,21 @@ app.post("/deleteRecord", async (req, res) => {
 
   const currview = await TView.findOne({ _id: tableView });
 
+  const currDS = await DataSource.findOne({ url : currview.view.dsurl });
+
+  let everyColKeyInd;
+  let keyColName;
+  for(var i=0; i<currDS.columns.length; i++) {
+    if(currDS.columns[i].key) {
+      everyColKeyInd = i;
+      keyColName = currDS.columns[i].name;
+    }
+  }
+  let recordsKeyInd;
+  for(var i=0; i<records[0].length; i++) {
+    if(records[0][i] === keyColName) recordsKeyInd = i;
+  }
+
   if (!currview) {
     res.status(400).send("currview not found");
     return;
@@ -1177,7 +1207,8 @@ app.post("/deleteRecord", async (req, res) => {
     // console.log("=================");
     // console.log(sheetdata.data.values[i], itemToDelete);
     // console.log("=================");
-    let result = arraysEqual(itemToDelete, sheetdata.data.values[i]);
+    let result = sheetdata.data.values[i][everyColKeyInd] === itemToDelete[recordsKeyInd];
+    // let result = arraysEqual(itemToDelete, sheetdata.data.values[i]);
     if (result) {
       indexToDelete = i;
       break;
