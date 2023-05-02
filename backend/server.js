@@ -1066,7 +1066,7 @@ app.post("/editRecord", async (req, res) => {
   client.setCredentials({ refresh_token: ownerToken });  
 
   const sheets = google.sheets({ version: "v4", auth: client });
-  const { appId, tableView, updatedRow, recordIndex, title, records } = req.body;
+  const { appId, tableView, updatedRow, recordIndex, title, records, recordCols } = req.body;
 
   let itemToEdit = records[recordIndex];
   const currview = await TView.findOne({ _id: tableView });
@@ -1119,13 +1119,28 @@ app.post("/editRecord", async (req, res) => {
     }
   }
 
+  let newNewRow = [];
+  var j = 0;
+  for(var i=0; i<currDS.columns.length; i++) {
+    if(currDS.columns[i].name === recordCols[0][j]) {
+      if(updatedRow[j] === null || updatedRow[j] === "") newNewRow.push("");
+      else newNewRow.push(updatedRow[j]);
+      j++;
+    }
+    else {
+      // var val = currDS.columns[i].initialValue;
+      // if(val === "") val = "none";
+      newNewRow.push(sheetdata.data.values[indexToEdit][i]);
+    }
+  }
+
   try {
     const response = await sheets.spreadsheets.values.update({
       spreadsheetId,
       range: `'${sheetTitle}'!A${indexToEdit + 1}`,
       valueInputOption: "USER_ENTERED",
       resource: {
-        values: [updatedRow],
+        values: [newNewRow],
       },
     });
     // Set the credentials back to the current user's token

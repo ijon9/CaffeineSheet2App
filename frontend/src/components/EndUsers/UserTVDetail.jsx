@@ -156,7 +156,8 @@ function TVDetail() {
         updatedRow: updatedRow,
         recordIndex: recordIndex,
         title: tView.view.dsurl.split("/")[5],
-        records: allRecords
+        records: allRecords,
+        recordCols : addRecordCols
       });
       if (response.data) {
         // const updatedRecords = records.map((record, index) =>
