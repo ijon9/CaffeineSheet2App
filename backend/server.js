@@ -1001,7 +1001,6 @@ app.post("/addRecord", async (req, res) => {
   let newNewRow = [];
   var j = 0;
   for(var i=0; i<currDS.columns.length; i++) {
-    console.log(currDS.columns[i].name);
     if(currDS.columns[i].name === addRecordCols[0][j]) {
       if(newRow[j] === null || newRow[j] === "") newNewRow.push(currDS.columns[i].initialValue);
       else newNewRow.push(newRow[j]);
@@ -1175,9 +1174,9 @@ app.post("/deleteRecord", async (req, res) => {
 
   let indexToDelete;
   for (let i = 0; i < sheetdata.data.values.length; i++) {
-    console.log("=================");
-    console.log(sheetdata.data.values[i], itemToDelete);
-    console.log("=================");
+    // console.log("=================");
+    // console.log(sheetdata.data.values[i], itemToDelete);
+    // console.log("=================");
     let result = arraysEqual(itemToDelete, sheetdata.data.values[i]);
     if (result) {
       indexToDelete = i;
