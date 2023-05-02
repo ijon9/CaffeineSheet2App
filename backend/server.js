@@ -169,15 +169,6 @@ app.post("/addApp", async (req, res) => {
     }
   );
 
-  fs.appendFile(
-    `./logs/${createdapp._id}.txt`,
-    `${creator} created ${name} app\n`,
-    function (err) {
-      if (err) throw err;
-      console.log("Data appended to file");
-    }
-  );
-
   res.send("Added app");
 });
 
@@ -457,19 +448,6 @@ app.post("/addTableView", async (req, res) => {
   tables.push(tableModal);
   await App.findOneAndUpdate({ _id: appId }, { tViews: tables }, { new: true });
 
-  const sessionid = req.session.id;
-  const userSessionid = await User.findOne({ sessionid });
-  let email = userSessionid.email;
-
-  fs.appendFile(
-    `./logs/${appId}.txt`,
-    `${email} created ${name} Table View\n`,
-    function (err) {
-      if (err) throw err;
-      console.log("Data appended to file");
-    }
-  );
-
   res.send(tableModal);
 });
 
@@ -525,15 +503,6 @@ app.post("/addDetailView", async (req, res) => {
   const sessionid = req.session.id;
   const userSessionid = await User.findOne({ sessionid });
   let email = userSessionid.email;
-
-  fs.appendFile(
-    `./logs/${req.body.appId}.txt`,
-    `${email} created ${name} Detail View\n`,
-    function (err) {
-      if (err) throw err;
-      console.log("Data appended to file");
-    }
-  );
 
   res.send("DView added");
 });
@@ -722,15 +691,6 @@ app.post("/addDataSource", async (req, res) => {
   const sessionid = req.session.id;
   const userSessionid = await User.findOne({ sessionid });
   let email = userSessionid.email;
-
-  fs.appendFile(
-    `./logs/${appId}.txt`,
-    `${email} created ${name} datasource\n`,
-    function (err) {
-      if (err) throw err;
-      console.log("Data appended to file");
-    }
-  );
 
   res.send(dataSource);
 });
@@ -976,13 +936,13 @@ app.post("/addRecord", async (req, res) => {
   const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
 
   const ownerToken = s2aOwnerUser.refreshToken;
-  client.setCredentials({ refresh_token: ownerToken });  
+  client.setCredentials({ refresh_token: ownerToken });
 
   const sheets = google.sheets({ version: "v4", auth: client });
   const { appId, tableView, newRow, addRecordCols } = req.body;
 
   const currview = await TView.findOne({ _id: tableView });
-  const currDS = await DataSource.findOne({ url : currview.view.dsurl });
+  const currDS = await DataSource.findOne({ url: currview.view.dsurl });
   const spreadsheetId = currview.view.dsurl.split("/")[5];
   const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
 
@@ -1000,21 +960,19 @@ app.post("/addRecord", async (req, res) => {
 
   let newNewRow = [];
   var j = 0;
-  for(var i=0; i<currDS.columns.length; i++) {
-    if(currDS.columns[i].name === addRecordCols[0][j]) {
-      if(newRow[j] === null || newRow[j] === "") newNewRow.push(currDS.columns[i].initialValue);
+  for (var i = 0; i < currDS.columns.length; i++) {
+    if (currDS.columns[i].name === addRecordCols[0][j]) {
+      if (newRow[j] === null || newRow[j] === "")
+        newNewRow.push(currDS.columns[i].initialValue);
       else newNewRow.push(newRow[j]);
       j++;
-    }
-    else if(currview.filter.name === currDS.columns[i].name) {
-      newNewRow.push('TRUE');
-    }
-    else if(currview.userFilter.name === currDS.columns[i].name) {
+    } else if (currview.filter.name === currDS.columns[i].name) {
+      newNewRow.push("TRUE");
+    } else if (currview.userFilter.name === currDS.columns[i].name) {
       newNewRow.push(email);
-    }
-    else {
+    } else {
       var val = currDS.columns[i].initialValue;
-      if(val === "") val = "none";
+      if (val === "") val = "none";
       newNewRow.push(val);
     }
   }
@@ -1030,6 +988,16 @@ app.post("/addRecord", async (req, res) => {
       },
     });
     client.setCredentials({ refresh_token: currentUserToken });
+
+    fs.appendFile(
+      `./logs/${appId}.txt`,
+      `${email} added a new row with data ` + newNewRow.toString() + "\n",
+      function (err) {
+        if (err) throw err;
+        console.log("Data appended to file");
+      }
+    );
+
     res.send(response.data);
   } catch (error) {
     res.status(500).send("Error adding record");
@@ -1063,28 +1031,36 @@ app.post("/editRecord", async (req, res) => {
   const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
 
   const ownerToken = s2aOwnerUser.refreshToken;
-  client.setCredentials({ refresh_token: ownerToken });  
+  client.setCredentials({ refresh_token: ownerToken });
 
   const sheets = google.sheets({ version: "v4", auth: client });
-  const { appId, tableView, updatedRow, recordIndex, title, records, recordCols } = req.body;
+  const {
+    appId,
+    tableView,
+    updatedRow,
+    recordIndex,
+    title,
+    records,
+    recordCols,
+  } = req.body;
 
   let itemToEdit = records[recordIndex];
   const currview = await TView.findOne({ _id: tableView });
   const spreadsheetId = currview.view.dsurl.split("/")[5];
   const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
-  const currDS = await DataSource.findOne({ url : currview.view.dsurl });
+  const currDS = await DataSource.findOne({ url: currview.view.dsurl });
 
   let everyColKeyInd;
   let keyColName;
-  for(var i=0; i<currDS.columns.length; i++) {
-    if(currDS.columns[i].key) {
+  for (var i = 0; i < currDS.columns.length; i++) {
+    if (currDS.columns[i].key) {
       everyColKeyInd = i;
       keyColName = currDS.columns[i].name;
     }
   }
   let recordsKeyInd;
-  for(var i=0; i<records[0].length; i++) {
-    if(records[0][i] === keyColName) recordsKeyInd = i;
+  for (var i = 0; i < records[0].length; i++) {
+    if (records[0][i] === keyColName) recordsKeyInd = i;
   }
 
   const { data } = await sheets.spreadsheets.get({
@@ -1111,7 +1087,8 @@ app.post("/editRecord", async (req, res) => {
 
   let indexToEdit;
   for (let i = 0; i < sheetdata.data.values.length; i++) {
-    let result = sheetdata.data.values[i][everyColKeyInd] === itemToEdit[recordsKeyInd];
+    let result =
+      sheetdata.data.values[i][everyColKeyInd] === itemToEdit[recordsKeyInd];
     // let result = arraysEqual(itemToEdit, sheetdata.data.values[i]);
     if (result) {
       indexToEdit = i;
@@ -1121,13 +1098,12 @@ app.post("/editRecord", async (req, res) => {
 
   let newNewRow = [];
   var j = 0;
-  for(var i=0; i<currDS.columns.length; i++) {
-    if(currDS.columns[i].name === recordCols[0][j]) {
-      if(updatedRow[j] === null || updatedRow[j] === "") newNewRow.push("");
+  for (var i = 0; i < currDS.columns.length; i++) {
+    if (currDS.columns[i].name === recordCols[0][j]) {
+      if (updatedRow[j] === null || updatedRow[j] === "") newNewRow.push("");
       else newNewRow.push(updatedRow[j]);
       j++;
-    }
-    else {
+    } else {
       // var val = currDS.columns[i].initialValue;
       // if(val === "") val = "none";
       newNewRow.push(sheetdata.data.values[indexToEdit][i]);
@@ -1145,6 +1121,21 @@ app.post("/editRecord", async (req, res) => {
     });
     // Set the credentials back to the current user's token
     client.setCredentials({ refresh_token: currentUserToken });
+
+    let arr = JSON.parse(JSON.stringify(sheetdata.data.values[indexToEdit]));
+
+    fs.appendFile(
+      `./logs/${appId}.txt`,
+      `${email} updated ` +
+        arr.toString() +
+        " to  " +
+        updatedRow.toString() +
+        "\n",
+      function (err) {
+        if (err) throw err;
+        console.log("Data appended to file");
+      }
+    );
 
     res.send(response.data);
   } catch (error) {
@@ -1173,19 +1164,19 @@ app.post("/deleteRecord", async (req, res) => {
 
   const currview = await TView.findOne({ _id: tableView });
 
-  const currDS = await DataSource.findOne({ url : currview.view.dsurl });
+  const currDS = await DataSource.findOne({ url: currview.view.dsurl });
 
   let everyColKeyInd;
   let keyColName;
-  for(var i=0; i<currDS.columns.length; i++) {
-    if(currDS.columns[i].key) {
+  for (var i = 0; i < currDS.columns.length; i++) {
+    if (currDS.columns[i].key) {
       everyColKeyInd = i;
       keyColName = currDS.columns[i].name;
     }
   }
   let recordsKeyInd;
-  for(var i=0; i<records[0].length; i++) {
-    if(records[0][i] === keyColName) recordsKeyInd = i;
+  for (var i = 0; i < records[0].length; i++) {
+    if (records[0][i] === keyColName) recordsKeyInd = i;
   }
 
   if (!currview) {
@@ -1222,13 +1213,16 @@ app.post("/deleteRecord", async (req, res) => {
     // console.log("=================");
     // console.log(sheetdata.data.values[i], itemToDelete);
     // console.log("=================");
-    let result = sheetdata.data.values[i][everyColKeyInd] === itemToDelete[recordsKeyInd];
+    let result =
+      sheetdata.data.values[i][everyColKeyInd] === itemToDelete[recordsKeyInd];
     // let result = arraysEqual(itemToDelete, sheetdata.data.values[i]);
     if (result) {
       indexToDelete = i;
       break;
     }
   }
+
+  let arr = JSON.parse(JSON.stringify(sheetdata.data.values[indexToDelete]));
 
   try {
     const response = await sheets.spreadsheets.batchUpdate({
@@ -1248,7 +1242,18 @@ app.post("/deleteRecord", async (req, res) => {
         ],
       },
     });
+
     client.setCredentials({ refresh_token: currentUserToken });
+    fs.appendFile(
+      `./logs/${appId}.txt`,
+      `${email} deleted row ${indexToDelete} with data ` +
+        arr.toString() +
+        "\n",
+      function (err) {
+        if (err) throw err;
+        console.log("Data appended to file");
+      }
+    );
     res.send(records);
   } catch (error) {
     console.log(error);
