@@ -42,7 +42,11 @@ function DetailViewModal({ open, onClose, recordIndex, onSubmit, edit, editableC
                     type="text"
                     value={editedRecord[index] || ""}
                     onChange={(event) => handleInputChange(event, index)}
-                    disabled={!editableColumns.includes(headings)}
+                    disabled={
+                      editableColumns !=null &&
+                      editableColumns.length >! 0 &&
+                      !editableColumns.includes(headings)
+                    }
                   /> : editedRecord[index]}
                   
                 </label>
