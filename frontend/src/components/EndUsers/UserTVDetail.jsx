@@ -12,6 +12,7 @@ function TVDetail() {
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
+  const [addRecordCols, setAddRecordCols] = useState([]);
   const [tView, setTView] = useState({});
   const [dView, setDView] = useState({});
   const [roles, setRoles] = useState("");
@@ -94,6 +95,13 @@ function TVDetail() {
         })
         .then((response) => {
           setDView(response.data);
+          let arr = [];
+          for(let col of response.data.view.columns) {
+            arr.push(col.name);
+          }
+          let temp = [];
+          temp.push(arr);
+          setAddRecordCols(temp);
         });
 
         setIsARoleSet(true);
@@ -108,9 +116,19 @@ function TVDetail() {
         tableView: tv,
         newRow: newRow,
         title: tView.view.dsurl.split("/")[5],
+        addRecordCols: addRecordCols
       });
       if (response.data) {
-        setRecords((prevRecords) => [...prevRecords, newRow]);
+        // setRecords((prevRecords) => [...prevRecords, newRow]);
+        axios
+        .post("http://localhost:4000/getDisplayColumns", {
+          appId: id,
+          tableView: tv,
+        })
+        .then((response) => {
+          setRecords(response.data.dataValues);
+          setAllRecords(response.data.allCols);
+        });
       }
     } catch (error) {
       console.log(error);
@@ -138,13 +156,22 @@ function TVDetail() {
         updatedRow: updatedRow,
         recordIndex: recordIndex,
         title: tView.view.dsurl.split("/")[5],
+        records: allRecords
       });
       if (response.data) {
-        const updatedRecords = records.map((record, index) =>
-          index === recordIndex ? updatedRow : record
-        );
-        setRecords(updatedRecords);
-        
+        // const updatedRecords = records.map((record, index) =>
+        //   index === recordIndex ? updatedRow : record
+        // );
+        // setRecords(updatedRecords);
+        axios
+        .post("http://localhost:4000/getDisplayColumns", {
+          appId: id,
+          tableView: tv,
+        })
+        .then((response) => {
+          setRecords(response.data.dataValues);
+          setAllRecords(response.data.allCols);
+        });
       }
     } catch (error) {
       console.log(error);
@@ -222,7 +249,7 @@ function TVDetail() {
           open={RecordModalOpen}
           onClose={() => setRecordModalOpen(false)}
           onSubmit={handleAddRecord}
-          records={records}
+          records={addRecordCols}
         />
         <DetailViewModal
           open={recordDetailOpen}

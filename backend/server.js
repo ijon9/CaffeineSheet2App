@@ -967,9 +967,14 @@ app.post("/getDisplayColumns", async (req, res) => {
 
 app.post("/addRecord", async (req, res) => {
   const sheets = google.sheets({ version: "v4", auth: client });
-  const { appId, tableView, newRow } = req.body;
+  const { appId, tableView, newRow, addRecordCols } = req.body;
+
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  let email = userSessionid.email;
 
   const currview = await TView.findOne({ _id: tableView });
+  const currDS = await DataSource.findOne({ url : currview.view.dsurl });
   const spreadsheetId = currview.view.dsurl.split("/")[5];
   const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
 
@@ -985,6 +990,26 @@ app.post("/addRecord", async (req, res) => {
     }
   }
 
+  let newNewRow = [];
+  var j = 0;
+  for(var i=0; i<currDS.columns.length; i++) {
+    console.log(currDS.columns[i].name);
+    if(currDS.columns[i].name === addRecordCols[0][j]) {
+      if(newRow[j] === null || newRow[j] === "") newNewRow.push(currDS.columns[i].initialValue);
+      else newNewRow.push(newRow[j]);
+      j++;
+    }
+    else if(currview.filter.name === currDS.columns[i].name) {
+      newNewRow.push('TRUE');
+    }
+    else if(currview.userFilter.name === currDS.columns[i].name) {
+      newNewRow.push(email);
+    }
+    else {
+      newNewRow.push(currDS.columns[i].initialValue);
+    }
+  }
+
   try {
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
@@ -992,7 +1017,7 @@ app.post("/addRecord", async (req, res) => {
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       resource: {
-        values: [newRow],
+        values: [newNewRow],
       },
     });
     res.send(response.data);
@@ -1019,8 +1044,9 @@ function arraysEqual(a, b) {
 }
 app.post("/editRecord", async (req, res) => {
   const sheets = google.sheets({ version: "v4", auth: client });
-  const { appId, tableView, updatedRow, recordIndex, title } = req.body;
-
+  const { appId, tableView, updatedRow, recordIndex, title, records } = req.body;
+  
+  let itemToEdit = records[recordIndex];
   const currview = await TView.findOne({ _id: tableView });
   const spreadsheetId = currview.view.dsurl.split("/")[5];
   const gid = parseInt(currview.view.dsurl.split("gid=")[1]);
@@ -1037,13 +1063,29 @@ app.post("/editRecord", async (req, res) => {
     }
   }
 
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${sheetTitle}'!A:Z`,
+    majorDimension: "ROWS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+
   console.log("updated row:", updatedRow);
   console.log("recordIndex:", recordIndex);
+
+  let indexToEdit;
+  for (let i = 0; i < sheetdata.data.values.length; i++) {
+    let result = arraysEqual(itemToEdit, sheetdata.data.values[i]);
+    if (result) {
+      indexToEdit = i;
+      break;
+    }
+  }
 
   try {
     const response = await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `'${sheetTitle}'!A${recordIndex + 1}`,
+      range: `'${sheetTitle}'!A${indexToEdit + 1}`,
       valueInputOption: "USER_ENTERED",
       resource: {
         values: [updatedRow],
