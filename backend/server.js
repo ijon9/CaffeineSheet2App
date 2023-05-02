@@ -1014,7 +1014,9 @@ app.post("/addRecord", async (req, res) => {
       newNewRow.push(email);
     }
     else {
-      newNewRow.push(currDS.columns[i].initialValue);
+      var val = currDS.columns[i].initialValue;
+      if(val === "") val = "none";
+      newNewRow.push(val);
     }
   }
 
@@ -1126,6 +1128,18 @@ app.post("/deleteRecord", async (req, res) => {
   let itemToDelete = records[rowIndex];
   records.splice(rowIndex, 1);
 
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  const email = userSessionid.email;
+
+  const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+  // const currentToken = await client.getAccessToken();
+  const currentUserToken = userSessionid.refreshToken;
+  const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+
+  const ownerToken = s2aOwnerUser.refreshToken;
+  client.setCredentials({ refresh_token: ownerToken });
+
   const sheets = google.sheets({ version: "v4", auth: client });
 
   const currview = await TView.findOne({ _id: tableView });
@@ -1161,6 +1175,9 @@ app.post("/deleteRecord", async (req, res) => {
 
   let indexToDelete;
   for (let i = 0; i < sheetdata.data.values.length; i++) {
+    console.log("=================");
+    console.log(sheetdata.data.values[i], itemToDelete);
+    console.log("=================");
     let result = arraysEqual(itemToDelete, sheetdata.data.values[i]);
     if (result) {
       indexToDelete = i;
@@ -1186,6 +1203,7 @@ app.post("/deleteRecord", async (req, res) => {
         ],
       },
     });
+    client.setCredentials({ refresh_token: currentUserToken });
     res.send(records);
   } catch (error) {
     console.log(error);
