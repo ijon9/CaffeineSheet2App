@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import DatasourceModal from "./Modals/DatasourceModal";
 import TableModal from "./Modals/TableModal";
+import ErrorModal from "./Modals/ErrorModal";
 
 function AppDetail() {
   let { id } = useParams();
@@ -13,6 +14,8 @@ function AppDetail() {
   const [datasourceModal, setDatasourceModal] = useState(false);
   const [tableView, setTableView] = useState([]);
   const [tableModal, setTableModal] = useState(false);
+  const [inconsistence, setInconsistence] = useState([]);
+  const [errorModal, setErrorModal] = useState(false);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -33,6 +36,17 @@ function AppDetail() {
         setTableView(response.data.tViews);
       });
   }, [user]);
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:4000/schemaConsistencyCheck/${id}`)
+      .then((response) => {
+        setInconsistence(response.data);
+        if (response.data.length > 0) {
+          setErrorModal(true);
+        }
+      });
+  }, []);
 
   function handleBackToApp() {
     navigate("/yourapps");
@@ -189,6 +203,14 @@ function AppDetail() {
         closetv={() => setTableModal(false)}
         onSubmittv={handleSubmittv}
       ></TableModal>
+      {errorModal ? (
+        <ErrorModal
+          incon={inconsistence}
+          closeError={() => setErrorModal(false)}
+        ></ErrorModal>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

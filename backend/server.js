@@ -77,10 +77,81 @@ const isAuth = (req, res, next) => {
     res.status(404).send("YOU ARE NOT AUTHENTICATED");
   }
 };
+async function checkConsistency(dsheaders, datasourceURL) {
+  const sheets = google.sheets({ version: "v4", auth: s2aClient });
+  const spreadsheetId = datasourceURL.split("/")[5];
+  const gid = parseInt(datasourceURL.split("gid=")[1]);
+  const { data } = await sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: true,
+  });
+
+  let title = "";
+  for (let d of data.sheets) {
+    if (d.properties.sheetId == gid) {
+      title = d.properties.title;
+    }
+  }
+
+  const sheetdata = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: `'${title}'!A:Z`,
+    majorDimension: "ROWS",
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+
+  let consistency = true;
+  const sheetHeader = sheetdata.data.values[0];
+  if (sheetHeader.length == dsheaders.length) {
+    for (let n of sheetHeader) {
+      if (!dsheaders.includes(n)) {
+        consistency = false;
+        break;
+      }
+    }
+  } else {
+    consistency = false;
+  }
+
+  return consistency;
+}
+
+app.get("/schemaConsistencyCheck/:id", async (req, res) => {
+  const appID = req.params.id;
+
+  const currentApp = await App.findOne({ _id: appID });
+  let listOfDS = currentApp.dataSources;
+  let listOfInconsistency = [];
+  for (let datasource of listOfDS) {
+    const dsurl = datasource.url;
+    const dscolumns = datasource.columns;
+    let dsheaders = [];
+    for (let col of dscolumns) {
+      dsheaders.push(col.name);
+    }
+    let consistency = await checkConsistency(dsheaders, dsurl);
+    if (!consistency) {
+      listOfInconsistency.push(datasource.name);
+    }
+  }
+
+  if (listOfInconsistency.length > 0) {
+    fs.appendFile(
+      `./logs/${appID}.txt`,
+      "Inconsistent Schemas in datasources " +
+        listOfInconsistency.toString() +
+        "\n",
+      function (err) {
+        if (err) throw err;
+        console.log("Data appended to file");
+      }
+    );
+  }
+  res.send(listOfInconsistency);
+});
 
 app.get("/logs/:id", async (req, res) => {
   const appID = req.params.id;
-  console.log(appID);
   const pathToFile = `./logs/${appID}.txt`;
   let dataToRead = "";
   try {

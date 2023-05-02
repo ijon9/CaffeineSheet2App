@@ -1,0 +1,9 @@
+gradeApp log
+Inconsistent Schemas in datasources students
+Inconsistent Schemas in datasources students
+Inconsistent Schemas in datasources students
+Inconsistent Schemas in datasources students
+Inconsistent Schemas in datasources students,scores
+Inconsistent Schemas in datasources students,scores
+Inconsistent Schemas in datasources students,scores
+Inconsistent Schemas in datasources students,scores
