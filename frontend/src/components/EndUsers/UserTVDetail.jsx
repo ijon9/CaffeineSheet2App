@@ -158,7 +158,7 @@ function TVDetail() {
         appId: id,
         tableView: tv,
         rowIndex: recordIndex,
-        records: records,
+        records: allRecords,
         title: tView.view.dsurl.split("/")[5],
       });
       if (response.data) {
