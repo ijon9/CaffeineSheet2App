@@ -39,7 +39,7 @@ const s2aEmail = "teamcaffeine03@gmail.com";
 
 // TOKEN MUST BE CHANGED WHEN EXPIRED
 const s2aRefreshToken =
-  "1//0d407WSI5tljECgYIARAAGA0SNwF-L9Ir82mXomo2MzQ5nu-Y6IVWj0J8v_wiYz9xoU73xgejCmB0JTyWVv0e3z5vRNRZyHHRqko";
+  "1//0dkN98YEfEuVkCgYIARAAGA0SNwF-L9IrxajX5KkMrAQZZiYMYfeKuVL9xkNs8tmIz_-GDFRO4YGWX8Juwc-f9KfUqXkcIZ_eb-U";
 
 s2aClient.setCredentials({ refresh_token: s2aRefreshToken });
 

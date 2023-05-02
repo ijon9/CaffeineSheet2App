@@ -22,6 +22,7 @@ function TVDetail() {
   const [RecordModalOpen, setRecordModalOpen] = useState(false);
   const [allowed, setAllowed] = useState("");
   const [add, setAdd] = useState(false);
+  const [edit, setEdit] = useState(false);
   const [del, setDel] = useState(false);
   const [recordDetail, setRecordDetail] = useState(null);
   const [recordDetailOpen, setRecordDetailOpen] = useState(null);
@@ -64,6 +65,7 @@ function TVDetail() {
         if (response.data.view.allowedActions[2]) a += "delete ";
         setAllowed(a);
         setAdd(response.data.view.allowedActions[0]);
+        setEdit(response.data.view.allowedActions[1]);
         setDel(response.data.view.allowedActions[2]);
         setTViewSet(true);
       });
@@ -266,6 +268,7 @@ function TVDetail() {
           onClose={() => setRecordDetailOpen(false)}
           recordIndex={recordDetail}
           onSubmit={handleEditRecord}
+          edit={edit}
         />
         <DeleteRecordModal
           open={deleteModalOpen}
