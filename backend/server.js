@@ -966,12 +966,20 @@ app.post("/getDisplayColumns", async (req, res) => {
 });
 
 app.post("/addRecord", async (req, res) => {
-  const sheets = google.sheets({ version: "v4", auth: client });
-  const { appId, tableView, newRow, addRecordCols } = req.body;
-
   const sessionid = req.session.id;
   const userSessionid = await User.findOne({ sessionid });
   let email = userSessionid.email;
+
+  const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+  // const currentToken = await client.getAccessToken();
+  const currentUserToken = userSessionid.refreshToken;
+  const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+
+  const ownerToken = s2aOwnerUser.refreshToken;
+  client.setCredentials({ refresh_token: ownerToken });  
+
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const { appId, tableView, newRow, addRecordCols } = req.body;
 
   const currview = await TView.findOne({ _id: tableView });
   const currDS = await DataSource.findOne({ url : currview.view.dsurl });
@@ -1020,6 +1028,7 @@ app.post("/addRecord", async (req, res) => {
         values: [newNewRow],
       },
     });
+    client.setCredentials({ refresh_token: currentUserToken });
     res.send(response.data);
   } catch (error) {
     res.status(500).send("Error adding record");
@@ -1043,6 +1052,18 @@ function arraysEqual(a, b) {
   return true;
 }
 app.post("/editRecord", async (req, res) => {
+  const sessionid = req.session.id;
+  const userSessionid = await User.findOne({ sessionid });
+  const email = userSessionid.email;
+
+  const s2aOwnerEmail = "teamcaffeine03@gmail.com";
+  // const currentToken = await client.getAccessToken();
+  const currentUserToken = userSessionid.refreshToken;
+  const s2aOwnerUser = await User.findOne({ email: s2aOwnerEmail });
+
+  const ownerToken = s2aOwnerUser.refreshToken;
+  client.setCredentials({ refresh_token: ownerToken });  
+
   const sheets = google.sheets({ version: "v4", auth: client });
   const { appId, tableView, updatedRow, recordIndex, title, records } = req.body;
   
@@ -1091,6 +1112,9 @@ app.post("/editRecord", async (req, res) => {
         values: [updatedRow],
       },
     });
+    // Set the credentials back to the current user's token
+    client.setCredentials({ refresh_token: currentUserToken });
+
     res.send(response.data);
   } catch (error) {
     console.log("edit record error:", error);
