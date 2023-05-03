@@ -93,7 +93,6 @@ function TVDetail() {
         axios
         .post("http://localhost:4000/getFirstDetailView", {
           id: id,
-          tv: tv,
           setOfRoles : response.data.setOfRoles
         })
         .then((response) => {
