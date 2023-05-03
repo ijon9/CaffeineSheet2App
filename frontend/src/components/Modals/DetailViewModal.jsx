@@ -7,7 +7,6 @@ function DetailViewModal({
   recordIndex,
   onSubmit,
   edit,
-  editableColumns,
 }) {
   const [editedRecord, setEditedRecord] = useState([]);
 
@@ -50,11 +49,6 @@ function DetailViewModal({
                       type="text"
                       value={editedRecord[index] || ""}
                       onChange={(event) => handleInputChange(event, index)}
-                      disabled={
-                        editableColumns != null &&
-                        editableColumns.length > !0 &&
-                        !editableColumns.includes(headings)
-                      }
                     />
                   ) : (
                     editedRecord[index]

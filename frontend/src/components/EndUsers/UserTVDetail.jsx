@@ -32,7 +32,6 @@ function TVDetail() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [recordIndex, setRecordIndex] = useState("");
-  const [editableColumns,setEditableColumns] = useState(null);
 
   let goBack = () => {
     navigate(`/userApp/${id}`);
@@ -100,8 +99,6 @@ function TVDetail() {
         })
         .then((response) => {
           setDView(response.data);
-          console.log("editableColumns",response.data.editableColumns);
-          setEditableColumns(response.data.editableColumns);
           let arr = [];
           for(let col of response.data.view.columns) {
             arr.push(col.name);
@@ -274,7 +271,6 @@ function TVDetail() {
           recordIndex={recordDetail}
           onSubmit={handleEditRecord}
           edit={edit}
-          editableColumns={editableColumns}
         />
         <DeleteRecordModal
           open={deleteModalOpen}
