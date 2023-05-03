@@ -617,13 +617,16 @@ app.post("/getDetailView", async (req, res) => {
 app.post("/getFirstDetailView", async (req, res) => {
   const setOfRoles = req.body.setOfRoles;
   const currApp = await App.findOne({ _id: req.body.id });
+  const currTView = await TView.findOne({ _id: req.body.tv });
   var dView = {};
   var found = false;
   for (let curr of currApp.dViews) {
-    for (let role of setOfRoles) {
-      if (!found && curr.view.roles.includes(role)) {
-        dView = curr;
-        found = true;
+    if(currTView._id.toString() === curr.tView) {
+      for (let role of setOfRoles) {
+        if (!found && curr.view.roles.includes(role)) {
+          dView = curr;
+          found = true;
+        }
       }
     }
   }
