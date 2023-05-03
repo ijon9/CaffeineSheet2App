@@ -39,7 +39,7 @@ const s2aEmail = "teamcaffeine03@gmail.com";
 
 // TOKEN MUST BE CHANGED WHEN EXPIRED
 const s2aRefreshToken =
-  "1//0dkN98YEfEuVkCgYIARAAGA0SNwF-L9IrxajX5KkMrAQZZiYMYfeKuVL9xkNs8tmIz_-GDFRO4YGWX8Juwc-f9KfUqXkcIZ_eb-U";
+  "1//0daELkii6bPjLCgYIARAAGA0SNwF-L9IrZ_Imb-GYHiFwaQIINpTvdL_6vUnhriyA0EcUR04hLx581_0VZwCzlJF-tBPmkNOgq_w";
 
 s2aClient.setCredentials({ refresh_token: s2aRefreshToken });
 
@@ -617,15 +617,18 @@ app.post("/getDetailView", async (req, res) => {
 app.post("/getFirstDetailView", async (req, res) => {
   const setOfRoles = req.body.setOfRoles;
   const currApp = await App.findOne({ _id: req.body.id });
+  const currTView = await TView.findOne({ _id: req.body.tv });
   var dView = {};
   var found = false;
   for (let curr of currApp.dViews) {
+    if(curr.tView === currTView._id.toString()) {
       for (let role of setOfRoles) {
         if (!found && curr.view.roles.includes(role)) {
           dView = curr;
           found = true;
         }
       }
+    }
   }
   res.send(dView);
 });
